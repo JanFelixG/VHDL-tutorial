@@ -1,0 +1,5009 @@
+\documentclass{article}
+
+\usepackage[UTF8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{line}=[draw]
+\usepackage{gensymb}
+\usepackage{siunitx}
+\usepackage{pgfplotstable}
+\usepackage{pgfplots}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{geometry}
+\pgfplotsset{compat=newest} 
+\usepgfplotslibrary{units}
+\sisetup{
+  round-mode          = places,
+  round-precision     = 2,
+}
+\geometry{left=3cm,right=4cm,top=2cm,bottom=4cm}
+\setlength{\parindent}{0em} 
+\bibliographystyle{plain}
+\usepackage[numbers]{natbib}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{listings}
+
+\begin{document}
+\title{FPGA-Design und VHDL Grundkurs}
+\author{Jan Grapengeter}
+\date{\today}
+\maketitle
+\begin{abstract}
+In dieser Arbeit sollen die Grundlagen von VHDL und FPGA-Design anhand praktischer \"Ubungen erarbeitet werden.
+\end{abstract}
+\renewcommand{\contentsname}{Inhaltsangabe}
+\tableofcontents
+\renewcommand{\listfigurename}{Bildverzeichnis}
+\listoffigures
+\renewcommand{\listtablename}{Tabellenverzeichnis}
+\listoftables
+
+\section{Vorwort}
+In dieser Arbeit sollen \"Ubungsprojekte zum Erlernen von VHDL und FPGA-Design pr\"asentiert werden. Es wird grunds\"atzliches Wissen um Logikgatter und Flip-Flops vorausgesetzt. Alle Projekte sollen mit dem Basys3-board von Digilent und dem Vivado-Design-Tool von Xilinx erarbeitet werden k\"onnen. Die Projekte sollen so aufgebaut sein, dass keine externen Quellen oder Peripherie zur Bearbeitung der Projekte ben\"otigt werden. 
+
+\section{\"Ubungen}
+\subsection{Erstes Projekt}
+\subsubsection{Anlegen eines Projektes in Vivado}
+-Starten Sie Vivado\newline
+-W\"ahlen Sie "Create New Project"\newline
+-"Next"\newline
+-Project Name: W\"ahlen Sie einen Namen für das Projekt und legen Sie einen Installationsordner für das Projekt auf Ihrer Festplatte an.\newline
+-"Next"\newline
+-Project Type: Wählen Sie "RTL Project" (voreingestellt), "Do not specify sources at this time" sollte nicht angewählt sein.\newline
+-"Next"\newline
+-Add Sources: Hier legen Sie ihre VHDL-Dateien an\newline
+- Klicken Sie auf "Create File"\newline
+-W\"ahlen Sie VHDL als Dateityp (File type) und w\"ahlen Sie "main" als Namen der Datei, "File location" sollte auf "Local to Project" stehen (voreingestellt).\newline
+-"Next"\newline
+-"Add Existing IP" kann ignoriert werden.
+-"Next"\newline
+-Add Constraints: Hier legen Sie ein Constraints-File an, dessen Bedeutung wird später erklärt\newline
+-W\"ahlen Sie "Create File"\newline
+-W\"ahlen Sie XDC als Dateityp (File type) und w\"ahlen Sie "cons" als Namen der Datei, "File location" sollte auf "Local to Project" stehen (voreingestellt)\newline
+-"Next"\newline
+-Default Part: Hier w\"ahlen Sie den von Ihnen verwendeten FPGA-Chip aus\newline
+-Wählen Sie "xc7atcpg236-1" aus, dies ist die Bezeichnung des FPGA-Chips auf dem Basys3.\newline
+-New Project Summary: Hier wird eine Zusammenfassung des gerade angelegten Projektes angezeigt. Wenn Sie alles richtig gemacht haben, sollte diese aussehen wie folgt:\newline
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Projektzusammenfassung.png}};
+\end{tikzpicture}
+\caption{Projektzusammenfassung}
+\end{center}
+\end{figure}
+
+-"Finish"\newline
+\newline
+
+-Define Module: Hier tragen Sie die Ein- und Ausgänge ihres Projektes ein. \"Uber diese Ports werden später Signale in das FPGA hinein und hinausgeführt.\newline
+-W\"ahlen Sie "main" als "Entity name" und "Behavarioal" als "Archictecture Name" (voreingestellt).\newline
+-Unter "Port Name" tragen Sie "sw0" als Namen ein\newline
+-"Direction" sollte auf "in" stehen und "Bus" nicht aktiviert sein (voreingestellt).\newline
+-Klicken Sie auf das gr\"une Kreuz, um einen weiteren Port hinzuzufügen, tragen Sie "ld0" als Namen ein und \"andern Sie "Direction auf "out", Bus sollte nicht aktiviert sein.\newline
+-"Ok"\newline
+-Wenn Sie alles richtig gemacht haben, sollten Sie nun im Projekt Manager sein und folgendes Bild sehen:\newline
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Projektmanager.png}};
+\end{tikzpicture}
+\caption{Projektmanager}
+\end{center}
+\end{figure}
+
+-Damit haben Sie das Projekt erfolgreich angelegt.\newline
+
+\subsubsection{Anlegen der VHDL-Main}
+-Doppelklicken Sie auf "main - Behavioral(main.vhd)" unter "Sources" (sollte orange umrandet sein)\newline
+-Im nun ge\"offneten Fenster "main.vhd" sollten Sie Ihre Main-Datei mit den beiden von Ihnen angelegten Ports sehen.\newline
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{mainvhd.png}};
+\end{tikzpicture}
+\caption{VHDL main}
+\end{center}
+\end{figure}
+
+-Unter "begin" tragen Sie:\newline
+ld0<=sw0;\newline
+ein. Damit wird der Wert des Eingangs "sw0" auf den Ausgang "ld0" geschrieben.\newline
+-Speichern Sie "main.vhd" ab.\newline
+
+\subsubsection{Anlegend der Constraints-Datei}
+-Wieder im Reiter "Project Manager" doppelklicken Sie auf "Constraints"\newline
+-Doppelklicken Sie dann auf "cons.xdc", dies ist Ihre vorher angelegte Constraints-Datei.\newline
+-Sie sollten nun das noch leere Fenster "cons.xdc" sehen.\newline
+-Tragen Sie hier folgende Zeilen ein:
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+\end{verbatim}
+-Damit weisen Sie Ihren in der VHDL-Datei festgelegten Ein- und Ausgängen physikalische Ports auf dem FPGA-Chip zu. Hier wird dem Eingang "sw0" der Port "v17" zugewiesen und dem Ausgang "sd0" der Port "u16". Auf dem Basys3 sind die Ein- und Ausg\"ange des FPGA mit bestimmter Peripherie auf dem Board fest verdrahtet. Sie sollten, wenn Sie auf das Board schauen, auch die Namen der Peripherie und der angeschlossenen Ports finden. "sw0" mit Port "v17" und "ld0" mit Port "u16" sind im rechten unteren Eck. (Im Bild bei Nummer 6)\newline
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{basysboard.png}};
+\end{tikzpicture}
+\caption{Basys3 Frontansicht}
+\end{center}
+\end{figure}
+
+\subsubsection{Programmierung des Boards}
+-Um nun Ihr Projekt auf das Board zu \"uberspielen, klicken Sie in der rechten Spalte (Flow Navigator) auf "Generate Bitstream", damit wird aus Ihrem Projekt ein für das FPGA lesbarer Code gemacht.\newline
+-No Implementation Results available: "Yes"\newline
+-Launch runs:\newline
+-W\"ahlen Sie "Default directory" als "Launch directory" \newline
+-W\"ahlen Sie "Launch runs on local host". Unter "Number of Jobs" k\"onnen Sie die Anzahl der Prozessorkerne ausw\"ahlen, die Vivado dafür einsetzen darf. W\"ahlen Sie soviele wie m\"oglich, da dieser Vorgang ansonsten einige Minuten dauern kann, insbesondere bei gr\"o{\ss}eren Projekten.\newline
+-In der rechten oberen Ecke k\"onnen Sie die einzelnen Schritte sehen, die Vivado zur Bitstreamerstellung durchl\"auft.\newline
+-Bitstream Generation Completed:\newline
+-W\"ahlen Sie "Open Hardware Manager"\newline
+-Unter "Flow Navigator" finden Sie nun ganz unten unter "Program and Debug" die Schaltfl\"ache "Open Target", klicken Sie auf diese und w\"ahlen Sie "auto connect"\newline
+-Vivado sollte nun automatisch das angeschlossene Basys3 board finden.\newline
+-Wo vorher Ihr Reiter "Project Mananger" war, sollte nun der "Hardware Manager" ge\"offnet sein.\newline
+-Hier können Sie das FPGA Chip-Modell sehen.\newline
+-Unter "Flow Navigator - Program and Debug" w\"ahlen Sie nun "Program Device" und klicken Sie auf "xc7a35t\_0" (Der Basys3 FPGA Chip).\newline
+-Program Device: Hier w\"ahlen Sie den von Ihnen generierten Bitstream aus.\newline
+-Da dieser automatisch ausgewählt sein sollte, klicken Sie auf "Program".\newline
+-Das FPGA sollte nun mit Ihrem VHDL Code programmiert worden sein.\newline
+-Testen Sie dies, indem Sie den Schalter 1 (sw0) umschalten, die LED0 (ld0) sollte an und ausgehen, abh\"angig von der Schalterposition.\newline
+
+\subsubsection{Aufgaben}
+1.: \"Andern Sie die Constraints so, dass nun Schalter "sw1" die Led "ld1" umschaltet. Nehmen Sie keine \"Anderungen an der VHDL Datei vor.\newline
+2.: Legen Sie in Ihrer Main zwei zus\"atzliche Ports an und verbinden Sie diese wie "sw0" und "ld0". \"Andern Sie die constraints Datei danach so, dass Sie über den Knopf "BTND" (zu finden direkt oberhalb der LEDs) die LED 5 (ld5) umschalten k\"onnen. \newline
+3.: Dr\"ucken Sie den Knopf "PROG" (zu finden rechts oben) auf Ihrem Board, dieser dient in der Standard-Stellung als Reset. Welches Programm l\"auft nun auf Ihrem FPGA? Was sagt Ihnen das \"uber die interne Speicherstruktur eines FPGAs?\newline
+
+\subsection{Logikgatter in VHDL und FPGAs}
+\subsubsection{Einfache Gatter}
+Einfache Logikgatter lassen sich in VHDL wie folgt anlegen:
+\begin{verbatim}
+ld0<=sw0 and sw1;
+\end{verbatim}
+Damit wird der Ausgang ld0 auf "1" geschaltet, wenn die Eing\"ange sw0 und sw1 beide auf "1" stehen. Wie in der letzten \"Ubung m\"ussen ld0, sw0 und sw1 mit entsprechender Peripherie auf dem Board verbunden werden. Die weiteren Logikgatter haben folgende Syntax:
+
+$$\begin{tabular}{|p{0.47\textwidth}|p{0.47\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{Logikgatter}\\
+\hline
+Und-Gatter & and\\
+\hline
+Oder-Gatter & or\\
+\hline
+Nicht-Gatter & not\\
+\hline
+NAND-Gatter & nand\\
+\hline
+NOR-Gatter & nor\\
+\hline
+XOR-Gatter & xor\\
+\hline
+XNOR-Gatter & xnor\\
+\hline
+\end{tabular}{}$$
+\captionof{table}{Logikgatter}
+
+Aufgaben\newline
+1.: Legen Sie ein neues Projekt an und nennen Sie dieses Gatterlogik. Legen Sie sw0 und sw1 als Eingänge und ld0 als Ausgang fest. Verbinden Sie in der Constraints Datei sw0 mit Schalter 1 (sw0), sw1 mit Schalter 1(sw1) und ld0 mit LED 0 (ld0). LED 0 soll leuchten, wenn beide Schalter betätigt werden.\newline
+2.: Verbinden Sie je zwei benachbarte Schalter mit einem Logikgatter und weisen Sie den Ausgang des Gatters einer benachbarten LED zu.\newline
+3.: Klicken Sie unter "Flow Navigator" auf "Open Elaborated Design" und schauen Sie, welche Logikgatter Vivado aus ihrem VHDL Code gemacht hat.\newline
+4.: Klicken Sie unter "Flow Navigator" auf Synthesis/Schematic und sehen Sie sich an, wie die Ihre Schaltung nun aussieht. Was f\"allt Ihnen auf im Vergleich zum Elaborated Design?
+
+\subsubsection{Look Up Table}
+In einem FPGA sind keine Logikgatter fest verbaut. Alle Logikgatter werden \"uber Look Up Tables (LUTs) realisiert. Wenn Sie in VHDL ein Logikgatter festlegen, wird daf\"ur ein "Configurable Logic Block" (CLB) im FPGA angelegt, dessen Werte dem LUT des Gatters entsprechen. In dem Artix 7 A35T chip, der auf dem Basys3 verbaut ist, kann ein einzelner CLB maximal sechs Eingänge haben und daher maximal $2^{6}$=64 verschiedene Kombinationen darstellen. Der LUT eines UND-Gatters ist hier dargestellt.
+
+$$\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\multicolumn{3}{|c|}{LUT Und-Gatter}\\
+\hline
+A1 & A2 & E\\
+\hline
+0 & 0 & 0\\
+\hline
+0 & 1 & 0\\
+\hline
+0 & 0 & 0\\
+\hline
+0 & 1 & 1\\
+\hline
+\end{tabularx}$$
+\captionof{table}{LUT Und-Gatter}
+
+Aufgaben\newline
+1.: Notieren Sie sich die LUTs der anderen von Ihnen verwendeten Logikgatter.\newline
+2.: Notieren Sie sich ein nichtsymetrisches LUT mit zwei Eingängen. Überlegen Sie sich, wie Sie dieses in VHDL schreiben k\"onnten.\newline
+3.: Notieren Sie sich ein LUT mit mehr als sechs Eingängen. Was macht Vivado aus diesem Code?
+
+\subsection{Unterfunktionen, Signale und std\_logic\_vector}
+\subsubsection{Halbaddierer}
+Die LUT eines Halbaddierers ist:
+
+$$\begin{tabularx}{\textwidth}{|X|X|X|X|}
+\hline
+\multicolumn{4}{|c|}{Halbaddierer LUT}\\
+\hline
+A1 & A2 & \"Ubertrag & Summe\\
+\hline
+0 & 0 & 0 & 0\\
+\hline
+0 & 1 & 0 & 1\\
+\hline
+1 & 0 & 0 & 1\\
+\hline
+1 & 1 & 1 & 0\\
+\hline
+\end{tabularx}$$
+\captionof{table}{Halbaddierer LUT}
+
+Aufgabe:
+Implementieren Sie einen Halbaddierer in VHDL, legen Sie dafür ein Projekt an und verbinden Sie die Ein- und Ausg\"ange mit sw0, sw1, ld0 und ld1.
+
+\subsubsection{Volladdierer}
+Die LUT eines Volladdierers ist:
+
+$$\begin{tabularx}{\textwidth}{|X|X|X|X|X|}
+\hline
+\multicolumn{5}{|c|}{Volladdierer LUT}\\
+\hline
+A1 & A2 & cin & \"Ubertrag & Summe\\
+\hline
+0 & 0 & 0 & 0 & 0\\
+\hline
+0 & 0 & 1 & 0 & 1\\
+\hline
+0 & 1 & 0 & 0 & 1\\
+\hline
+0 & 1 & 1 & 1 & 0\\
+\hline
+1 & 0 & 0 & 0 & 1\\
+\hline
+1 & 0 & 1 & 1 & 0\\
+\hline
+1 & 1 & 0 & 1 & 0\\
+\hline
+1 & 1 & 1 & 1 & 1\\
+\hline
+\end{tabularx}$$
+\captionof{table}{Volladdierer LUT}
+
+Aufgabe:
+Implementieren Sie einen Volladdierer in VHDL, erweitern Sie dazu das Projekt des Halbaddieres, nutzen Sie sw15 als cin.
+
+\subsubsection{Entity und Component}
+Um sp\"ater komplexere Schaltungen bauen zu k\"onnen, ohne den Code zu un\"ubersichtlich werden zu lassen, k\"onnen Teile von Schaltungen in Module ausgegegliedert werden, um diese sp\"ater im Hauptprogramm einbinden zu k\"onnen. Daf\"ur muss das Modul genau wie das Modul ''main'' definiert werden. Die Entity declaration muss im Code vor der architecture stehen, in der die Entity benutzt wird. Abfolge im Code:\newline
+1.: Libraries für ''main''\newline
+2.: Entity declaration für ''main'' / Port map ''main''\newline
+3.: Entity declaration für ''subfunction(hier: volladdierer)'' / Port map ''subfunction''\newline
+4.: Architecture für ''subfunction''\newline
+5.: Architecture für ''main''\newline
+--> in 5. Component declaration\newline
+--> in 5. ''begin''\newline
+--> in 5. Component instantiation\newline
+Die Syntax für Component declaration ist:\newline
+component KOMPONENTENNAME(hier: volladdierer) is\newline
+port(E1,E2,etc. : in std\_logic;\newline
+A1,A2,etc. : out std\_logic);\newline
+end component;\newline
+\newline
+Die Syntax für Component instantiation ist:\newline
+INSTANZNAME(hier:voll1):KOMPONENTENNAME(hier:volladdierer) \newline
+port map(PORTNAME1 aus Component instantiation=>SIGNALNAME1 aus main,\newline 
+wiederholen für alle Ports);\newline
+end component;\newline
+Damit wird ein Modul INSTANZNAME vom Typ KOMPONENTENNAME angelegt und dessen Ein- und Ausg\"ange mit Signalen der Haupfunktion verbunden.\newline
+
+Aufgabe:\newline
+Legen Sie ein neues Projekt in Vivado an und kopieren Sie Ihren Code f\"ur den Volladdierer aus der vorherigen Aufgabe. Legen Sie eine Entity und eine Component declaration an. Verbinden Sie die Ein- und Ausg\"ange der Komponente mit den gleichen Ein- und Ausg\"angen wie in der vorherigen Aufgabe. 
+
+\subsubsection{Dateiausgliederung}
+Um den Code \"ubersichtlicher zu halten, k\"onnen Untermodule in eigene Dateien ausgegegliedert werden.\newline
+-Legen Sie ein neues Projekt an.\newline
+-Im Projektmanager rechtsklicken Sie auf "Design Sources'' und w\"ahlen Sie "Add Source".\newline
+-W\"ahlen Sie "Add or create design sources".\newline
+-W\''ahlen Sie "Create File".\newline
+W\"ahlen SIe VHDL als Dateityp, Volladdierer als Dateinamen und "Local to project" als Speicherort.\newline
+-"Finish"\newline
+-Legen Sie die Ein- und Ausg\"ange wie in der Entity declaration in der vorherigen Aufgabe fest.\newline
+-Wechseln Sie im Project Manager auf "Compile Order"\newline
+-Rechtklicken Sie auf Ihre neu angelegte Datei und w\"ahlen Sie "Move to Top"\newline
+Sie haben jetzt eine Datei zu Ihrem Projekt hinzugefügt, die vor ihrem Hauptprogramm kompiliert wird.\newline
+
+Aufgaben:\newline
+1.: Kopieren Sie Ihren Code der Entity declaration und der Architecture aus der vorherigen Aufgabe in die neu angelegte Datei.\newline
+2.: Legen Sie, wie in der vorherigen Aufgabe, eine Component Instantiation in main und verbinden Sie die Ein- und Ausg\"ange wie in der vorherigen Aufgabe.\newline
+3.: Kompilieren Sie Ihr Programm und schreiben Sie es auf das Basys3-board. Wenn alles funktioniert hat, sollte es das gleiche Verhalten wie in der vorherigen Aufgabe zeigen.\newline
+4.: \"Uberlegen Sie sich, warum die Compile Order ge\"andert werden musste.\newline
+5.: Legen Sie eine zweite Component Instantiation Ihres Volladdieres an und verbinden Sie diese mit beliebigen unbenutzen Ports.\newline
+6.: Sehen Sie sich Ihre Schaltung mit "Elaborated Design'' und "Synthesis/Schematic" an.
+
+\subsubsection{Signale}
+Signale sind interne Repr\"asentationen von Dr\"ahten und internen elektrischen Signalen. Sie werden in VHDL wie folgt angelegt:\newline
+signal SIGNALNAME1,SIGNALNAME2,etc. : SIGNALTYP;\newline
+Diese Deklaration muss in der Architecture vor "begin" stehen.\newline
+Beispiel:\newline
+signal carry1,carry2 : std\_logic;\newline
+Signale k\"onnen wie Outputports gesteuert werden.\newline
+signal1 <= signal2;\newline
+signal3 <= inputport;\newline
+outputport <= signal4;\newline
+Signalen kann ein Anfangswert mitgegeben werden:\newline
+signal1 <= '1';\newline
+singal2 <= '0';\newline
+
+Aufgaben:\newline
+1.: Legen Sie Signale f\"ur alle Ihre Ein- und Ausg\"ange aus Ihrem Volladdierer aus der vorherigen Aufgabe an und verbinden Sie diese so, dass die Schaltung danach die gleiche Funktion hat wie zuvor.\newline
+2.: Optional: Sollten Sie Ihren Volladdierer bisher \"uber die dysjunkte Normalform beschrieben haben, \"uberlegen Sie sich, wie Sie den Code mit Signalen abk\"urzen k\"onnen. Kompilieren Sie Ihre neue Schaltung und testen Sie diese.\newline
+3.: Sehen Sie sich Ihre Schaltung mit "Elaborated Design'' und "Synthesis/Schematic" an.
+
+\subsubsection{Verbindung von Komponenten}
+Das Blockschaltbild eines 4-bit Volladdierers ist:\newline
+
+\tikzstyle{function} = [rectangle, rounded corners, minimum width=2cm, minimum height=1cm,text centered, draw=black, fill=blue!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node (voll1) [function] {Voll1};
+\node (voll2) [function, left of=voll1] {Voll2};
+\node (voll3) [function, left of=voll2] {Voll3};
+\node (voll4) [function, left of=voll3] {Voll4};
+\coordinate[left of=voll4] (d44);
+\coordinate[right of=voll1] (d0);
+\coordinate[below of=voll1] (s1);
+\coordinate[below of=voll2] (s2);
+\coordinate[below of=voll3] (s3);
+\coordinate[below of=voll4] (s4);
+
+\coordinate[above of=voll1,xshift=0.5cm] (a1);
+\coordinate[above of=voll1,xshift=-0.5cm] (b1);
+\coordinate[above of=voll2,xshift=0.5cm] (a2);
+\coordinate[above of=voll2,xshift=-0.5cm] (b2);
+\coordinate[above of=voll3,xshift=0.5cm] (a3);
+\coordinate[above of=voll3,xshift=-0.5cm] (b3);
+\coordinate[above of=voll4,xshift=0.5cm] (a4);
+\coordinate[above of=voll4,xshift=-0.5cm] (b4);
+\draw [arrow] (d0) --node[anchor=north] {cin} (voll1);
+\draw [arrow] (voll1) --node[anchor=north] {cout1} (voll2);
+\draw [arrow] (voll2) --node[anchor=north] {cout2} (voll3);
+\draw [arrow] (voll3) --node[anchor=north] {cout3} (voll4);
+\draw [arrow] (voll4) --node[anchor=north] {cout4} (d44);
+\draw [arrow] (voll1) --node[anchor=west] {Summe1} (s1);
+\draw [arrow] (voll2) --node[anchor=west] {Summe2} (s2);
+\draw [arrow] (voll3) --node[anchor=west] {Summe3} (s3);
+\draw [arrow] (voll4) --node[anchor=west] {Summe4} (s4);
+
+\draw [arrow] (a1) --node[anchor=west] {A1} (voll1);
+\draw [arrow] (b1) --node[anchor=east] {B1} (voll1);
+\draw [arrow] (a2) --node[anchor=west] {A2} (voll2);
+\draw [arrow] (b2) --node[anchor=east] {B2} (voll2);
+\draw [arrow] (a3) --node[anchor=west] {A3} (voll3);
+\draw [arrow] (b3) --node[anchor=east] {B3} (voll3);
+\draw [arrow] (a4) --node[anchor=west] {A4} (voll4);
+\draw [arrow] (b4) --node[anchor=east] {B4} (voll4);
+\end{tikzpicture}
+\caption{4-bit Volladdierer}
+\end{center}
+\end{figure}
+Aufgaben:\newline
+1.: Legen Sie ein neues Projekt an und implementieren Sie dort einen 4-bit Volladdierer. Kompilieren Sie Ihr Programm und testen Sie es auf dem Basys3-board.\newline
+2.: Sehen Sie sich Ihre Schaltung mit "Elaborated Design'' und "Synthesis/Schematic" an.\newline
+3.: Welche Ein- und Ausg\"ange entsprechen welcher Zahl im Dezimalsystem?\newline
+4.: Erweitern Sie Ihre Schaltung auf alle Schalter und LEDs, die auf dem Basys3-board zu Verf\"ugung stehen. Wie groß ist Ihr Volladdierer dann? Was ist das limitierende Kriterium?
+
+\subsubsection{std\_logic\_vector}
+Wenn Sie viele Ein- und Ausg\"ange ansteuern, wird die Port Map Ihrer Schaltung sehr lang. Diese kann jedoch verkürzt werden, indem gleiche Signaltypen in einen Vektor zusammengefasst werden. Die Syntax in der Port Map dafür ist:\newline
+VEKTORNAME : in/out std\_logic\_vector( VEKTORL\"ANGE-1 downto 0);\newline
+Syntax, wenn Vektor als "signal" angelegt wird:\newline
+signal VEKTORNAME : std\_logic\_vector( VEKTORL\"ANGE-1 downto 0);\newline
+Downto( VEKTORL\"ANGE-1 downto 0) legt die L\"ange des Vektors auf VEKTORL\"ANGE fest und definiert die nullte Stelle als LSB. Vivado ben\"otigt für Vektoren eine andere Syntax in der Constraints Datei. Beispiel:\newline
+set\_property -dict \{ PACKAGE\_PIN V17   IOSTANDARD LVCMOS33 \} [get\_ports  sw[0]];\newline
+
+Aufgaben:\newline
+1.: Legen Sie die Ein- und Ausg\"ange Ihres 4-bit Volladdierers als Vektor an und \"andern Sie die Constraints Datei entsprechend.\newline
+2.: Legen Sie die Signale f\"ur ihre Komponenten als Vektoren an.\newline
+3.: Testen Sie Ihre Schaltung.\newline
+4.: Sehen Sie sich Ihre Schaltung mit "Elaborated Design'' und "Synthesis/Schematic" an.
+
+\subsubsection{Generate Statement}
+Gr\"o{\ss}ere Volladdierer lassen sich nur umst\"andlich per Hand anlegen. Dies kann jedoch \"uber das Generate Statement gel\"ost werden. Damit lassen sich in einer Schleife eine definierte Anzahl von Komponenten instanzieren. Die Syntax daf\"ur ist:\newline
+LABEL:\newline
+for i in 0 to ANZAHLKOMPONENTEN+1 generate\newline
+LABELNAME : KOMPONENTENNAME port map\newline
+(Komponentenport1=>signal1(i);Komponentenport2=>signal2(i),etc.);\newline
+end generate LABEL;\newline
+signal1 und signal2 m\"ussen als Vektor angelegt sein, um in der Schleife zugeordnet werden zu k\"onnen.\newline
+
+Aufgaben:\newline
+1.: \"Andern Sie Ihren 4-bit Volladdierer so, dass die Komponenteninstanzierung nun \"uber ein Generate Statement erfolgt. \"Andern Sie Ihre Signale falls n\"otig.\newline
+2.: Sehen Sie sich Ihre Schaltung mit "Elaborated Design'' und "Synthesis/Schematic" an.
+
+\subsection{Process Structure und State Machines}
+\subsubsection{Process Structure}
+Prozess Statements k\"onnen benutzt werden, um VHDL Module zu strukturieren, au{\ss}erdem erlaubt die Prozess Struktur die Verwendung weiterer Statements, die sp\"ater noch eingef\"uhrt werden. Die Syntax f\"ur ein Process Statement ist:\newline
+LABEL(optional):process(sensitivity list(optional))\newline
+declarations\newline
+begin\newline
+SEQUENZ\newline
+end process;\newline
+
+Aufgabe:\newline
+Legen Sie ein neues Projekt an, definieren Sie die Schalter und LEDs des Basys3 als Ein- und Ausg\"ange. Verbinden Sie zwei Schalter innerhalb eines Prozesses mit einem Und-Gatter und legen Sie das Signal auf eine LED.
+
+\subsubsection{If Statement}
+If Statements sind nur innnerhalb von Prozessen erlaubt, mit ihnen lassen sich konditionale Strukturen realisieren. Die Syntax f\"ur ein If Statement ist:\newline
+if BEDINGUNG then\newline
+SEQUENZ\newline
+elsif BEDINGUNG then\newline
+SEQUENZ\newline
+else\newline
+SEQUENZ\newline
+end if;\newline
+Um den Wert eines Signals abzufragen, wird folgende Syntax  f\"ur die Bedingung verwendet:\newline
+if(SIGNAL='1') then (statt 1 k\"onnte hier auch 0 stehen, je nachdem was man abfragen m\"ochte).\newline
+Um die Werte eines ganzen Vektors abzufragen, kann folgende Syntax verwendet werden:\newline
+VEKTOR(X downto Y)="1111"(L\"ange der Sequenz von 1 ist X-Y+1)\newline
+X ist hier der erste Wert, den man abfragt, Y der letzte, es lassen sich damit auch zusammenh\"angende Teile eines Vektors abfragen. Innerhalb einer Bedingung k\"onnen Logikgatter verwendet werden.  \newline
+
+Aufgaben:\newline
+1.: Realisieren Sie Ihre Schaltung aus der vorherigen Aufgabe mit einem If Statement.\newline
+2.: Realisieren Sie das unten stehende LUT mithilfe eines IF Statements. Verwenden Sie kein Elsif Statement.\newline
+3.: Verbinden Sie nun zus\"atzlich zwei weitere Schalter mit einer LED wie in der LUT angegeben. Verwenden Sie diesmal ein Elsif Statement.\newline
+4.: Sehen Sie sich Ihre Schaltung in "Elaborated Design" und "Synthesis/Schematic" an und vergleichen Sie die Ergebnisse. Was f\"allt Ihnen auf?\newline
+
+$$\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\multicolumn{3}{|c|}{LUT Und-Gatter}\\
+\hline
+A1 & A2 & E\\
+\hline
+0 & 0 & 0\\
+\hline
+0 & 1 & 1\\
+\hline
+1 & 0 & 0\\
+\hline
+1 & 1 & 1\\
+\hline
+\end{tabularx}$$
+\captionof{table}{LUT Und-Gatter}
+
+\subsubsection{Case When Statement}
+Das Case When Statement ist eine weitere M\"oglichkeit Bedingungen abzufragen. Die Syntax f\"ur das Statement ist:\newline
+case SIGNAL is\newline
+when wert1 =>\newline
+SEQUENZ\newline
+when wert2 =>\newline
+SEQUENZ\newline
+end case;\newline
+"when other'' kann als Standardfall eines Case When Statements verwendet werden und wird immer dann aktiv, wenn keiner der anderen F\"alle eintritt.\newline
+
+Aufgaben:\newline
+1.: Realisieren Sie Ihre Schaltung aus der vorherigen Aufgabe mit einem Case When Statement.\newline
+2.: Sehen Sie sich Ihre Schaltung in "Elaborated Design" und "Synthesis/Schematic" an und vergleichen Sie die Ergebnisse. Was f\"allt Ihnen auf?\newline
+3.: Implementieren Sie ein XOR-Gatter mit einem If Statement, einem If Elsif Statement, einem Case When Statement und als einfaches Gatter und vergleichen Sie die Ergebnisse, indem Sie die Schaltung in "Elaborated Design" und "Synthesis/Schematic" ansehen.
+
+\subsubsection{State Machines}
+Hier ist das Blockschaltbild eines Endlichen Automaten.\newline
+
+\tikzstyle{function} = [rectangle, rounded corners, minimum width=5cm, minimum height=2cm,text centered, draw=black, fill=blue!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}[node distance=5cm]
+\node (zustand1) [function] {LED0,LED1};
+\node (zustand2) [function, right of=zustand1,xshift=4cm] {LED2,LED3,LED4};
+\node (zustand3) [function, below of=zustand2] {LED5,LED7};
+\node (zustand4) [function, left of=zustand3,xshift=-4cm] {LED10,LED11,LED12};
+
+\draw [arrow] (zustand1) --node[anchor=south] {sw(3 downto 0)=''1000''} (zustand2);
+\draw [arrow] (zustand2) --node[anchor=west] {sw(3 downto 0)=''0100''} (zustand3);
+\draw [arrow] (zustand3) --node[anchor=north] {sw(3 downto 0)=''0010''} (zustand4);
+\draw [arrow] (zustand4) --node[anchor=east] {sw(3 downto 0)=''0001''} (zustand1);
+
+\end{tikzpicture}
+\caption{Endlicher Automat}
+\end{center}
+\end{figure}
+
+Aufgabe:\newline
+1.: Implementieren Sie diesen Automaten in VHDL und bringen Sie Ihre Schaltung auf das FPGA. Zu Beginn sollte LED0 leuchten.\newline
+2.: Welche Probleme treten bei der Implementierung auf?\newline
+3.: Verwenden Sie Ihr Wissen um If Statements, um Ihren Mehrbit-Volladdierer aus der letzten \"Ubung zu vereinfachen.
+
+\subsection{Clock Instantiation}
+\subsubsection{Einlesen eines Frequenzsignals}
+Um einen endlichen Automaten richtig aufbauen zu k\"onnen, ist ein Taktsignal vonn\"oten. Bei einer positiven Taktflanke werden dann die Signalzust\"ande \"uberpr\"uft und dementsprechende Ausgabewerte generiert. Auf dem Basys3-board befindet sich ein 100MHz Oszillator. Dieser soll nun benutzt werden, um einen endlichen Automaten aufzubauen. Die Syntax, um eine Sequenz bei nach einer positiven Taktflanke zu triggern, ist:\newline
+if(rising\_edge(uhr)) then\newline
+SEQUENZ\newline
+end if;\newline
+
+Aufgabe:\newline
+Implementieren Sie den Zustandsautomaten aus der letzten \"Ubung erneut, fragen Sie die zum Umschalten notwendigen Zust\"ande bei steigenden Taktflanken der Uhr ab. Erweitern Sie Ihre Constraints Datei entsprechend.\newline
+
+\subsubsection{Frequenzteiler}
+Ein std\_logic\_vector kann mithilfe einiger Bibliotheken zu einem Frequenzteiler umfunktioniert werden. Legen Sie ein neues Projekt an und binden Sie folgende Bibliotheken in Ihr Projekt ein:\newline
+use ieee.std\_logic\_unsigned.all;\newline
+use IEEE.numeric\_std.all;\newline
+Diese Bibliotheken erlauben Ihnen mathematische Operationen in Ihrem Code zu benutzen. Ein Frequenzteiler l\"asst sich dann wie folgt realisieren:\newline
+if(rising\_edge(UHR)) then\newline
+TEILER<=TEILER+1;\newline
+end if;\newline
+Wobei TEILER  vom Typ ein std\_logic\_vector ist.\newline
+
+Aufgaben:\newline
+1.: Implementieren Sie einen Frequenzteiler, sodass dieser das Frequenzsignal Ihrer Uhr auf etwas 1Hz herunterteilt. Legen Sie das heruntergeteilte Signal auf einen LED-Pin. Was ist die exakte Frequenz Ihres heruntergeteilten Signals?\newline
+2.: \"Andern Sie ihren Frequenzteiler nun so, dass dessen Ausgangsfrequenz exakt 1Hz ist. Lassen Sie mit dem Signal wiederum eine LED blinken.\newline
+3.: Nutzen Sie Ihr Wissen um Pulsweitenmodulation, um die Helligkeit einer LED zu regulieren.\newline
+
+\subsubsection{Synchrones und Asynchrones Design}
+Register/D-FFs  lassen sich entweder synchron oder asynchron zur\"ucksetzen. Die Syntax um die Register synchron zur\"uckzusetzen, ist:\newline
+\begin{verbatim}
+if(rising_edge(uhr)) then
+if(reset='1') then
+SEQUENZ_RESET
+else
+SEQUENZ
+end if;
+end if;
+\end{verbatim}
+Die Syntax, um die Register asynchron zur\"uckzusetzen, ist:\newline
+\begin{verbatim}
+if(reset='1') then
+SEQUENZ_RESET
+elsif(rising_edge(uhr)) then
+SEQUENZ
+end if;
+\end{verbatim}
+Xilinx empfiehlt f\"ur alle von Ihnen produzierten FPGAs synchrone Resets.\citep{Xilinxsync} \newline
+
+
+Aufgaben:\newline
+1.: \"Uberlegen Sie sich, welche Vor- und Nachteile synchrone gegen\"uber asynchronen Resets haben. Erl\"autern Sie dabei insbesondere die Auswirkungen auf die Metastabilit\"at der Schaltung.\newline
+2.: Implementiere Sie eine Schaltung mit einem synchronen und einem asynchronen Reset. Sehen Sie sich die Schaltung in "Elaborated Design" und "Synthesis/Schematic" an. Was f\"allt Ihnen auf?\newline
+3.: Implementieren Sie die unten stehende State machine in VHDL mit einem synchronen Reset.\newline
+
+\tikzstyle{function} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1.5cm,text centered, draw=black, fill=blue!30]
+\tikzstyle{start} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1.5cm,text centered, draw=black, fill=red!30]
+\tikzstyle{unsichtbar} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1.5cm,text centered, draw=white, fill=white!0]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+\begin{figure}[H]
+\begin{center}
+\resizebox{\textwidth}{!} {
+\begin{tikzpicture}[node distance=5cm]
+
+\node (zustand1) [start] {LED0,LED1};
+\node (zustand2) [function, right of=zustand1,xshift=4cm] {LED2,LED3};
+\node (zustand3) [function, below of=zustand2] {LED4,LED5};
+\node (zustand4) [function, below of=zustand3] {LED6,LED7};
+\node (zustand5) [function, left of=zustand4,xshift=-4cm] {LED8,LED9};
+\node (zustand6) [function, above of=zustand5,xshift=-5cm] {LED10,LED11}; 
+
+\coordinate[above of=zustand1,yshift=-5.5cm,xshift=1.25cm] (a1);
+\coordinate[above of=zustand2,yshift=-5.5cm,xshift=-1.25cm] (a2);
+
+\draw [arrow] (zustand1) --node[anchor=south] {sw(5 downto 0)=''000001'' and btnd='0'} (zustand2);
+\draw [arrow] (zustand2) --node[anchor=west] {sw(5 downto 0)=''000010'' and btnd='0'} (zustand3);
+\draw [arrow] (zustand3) --node[anchor=west] {sw(5 downto 0)=''000100'' and btnd='0'} (zustand4);
+\draw [arrow] (zustand4) --node[anchor=north] {sw(5 downto 0)=''001000'' and btnd='0'} (zustand5);
+\draw [arrow] (zustand5) --node[anchor=south] {sw(5 downto 0)=''010000'' and btnd='0'} (zustand6);
+\draw [arrow] (zustand6) --node[anchor=north] {sw(5 downto 0)=''1000000'' or btnd='1'} (zustand1);
+
+\draw [arrow] (a2) --node[anchor=south] {btnd='1'} (a1);
+\draw [arrow] (zustand3) --node[anchor=west] {btnd='1'} (zustand1);
+\draw [arrow] (zustand4) --node[anchor=north] {btnd='1'} (zustand1);
+\draw [arrow] (zustand5) --node[anchor=east] {btnd='1'} (zustand1);
+\end{tikzpicture}
+}
+\caption{Endlicher Automat}
+\end{center}
+\end{figure}
+4.: Implementieren Sie eine Stoppuhr mit Reset in VHDL. Stellen Sie Ihre Zeitaufl\"osung auf 0.1s ein. Wie hoch ist die maximale Zeitaufl\"osung, die Sie in Ihrem FPGA erreichen k\"onnen? Was ist die maximale Zeitspanne, die Sie so messen k\"onnen?
+
+\subsubsection{Gatterlaufzeiten}
+Bei zeitkritischen Designs sind die Verz\"ogerungszeiten in Gattern und Leitungen zu beachten. Typische Verz\"ogerungszeiten lassen sich dem Datenblatt des FPGA entnehmen. Man kann diese aber auch selbst messen.\newline
+
+Aufgabe:\newline
+Generieren Sie einen Ringoszillator und einen Frequenzteiler geeigneter Größe, um eine LED so umzuschalten, dass der Schaltvorgang mit dem Auge sichtbar ist. Messen Sie grob die Zeit, die ein Schaltvorgang dauert. Berechnen Sie daraus die Frequenz Ihres Ringoszillators und \"uberlegen Sie sich, wie sich daraus die Gatter und Signal Laufzeiten absch\"atzen lassen.
+
+\subsubsection{Vivado Clock Wizard}
+Legen Sie ein neues Projekt an und w\"ahlen Sie unter "Project Manager" den "IP Catalog". Hier finden Sie vorgefertigte Module(Komponenten), die Sie direkt in Ihr Projekt einbinden k\"onnen.\newline
+-W\"ahlen Sie "FPGA Features and Design"\newline
+-W\"ahlen Sie "Clocking Wizard"\newline
+-Im nun ge\"offneten Fenster w\"ahlen Sie als Optionen PLL, Frequency Synthesis, Phase Alignement, Balanced, Input Frequency =100(MHz)\newline
+-Unter "Output Clocks" w\"ahlen Sie clk\_out1,Output Freq=320(MHz),reset,locked,Active High,Automatic Control On-Chip\newline
+-OK\newline
+-Out of Context for IP-->"Generate"\newline
+-Ok\newline
+-\"Offnen Sie den Project Manager und w\"ahlen Sie Ihr neu erstelltes Modul "clk\_wiz\_0" und wechseln Sie zu "clk\_wiz\_0.v"\newline
+-Unter "module clk\_wiz\_0" finden Sie die Port map des Moduls, damit k\"onnen Sie das Modul genau wie eine Komponente in Ihrem Hauptprogramm einbinden.\newline
+
+Aufgabe:\newline
+Instanzieren Sie die soeben angelegte Phasenregelschleife in Ihrem Hauptprogramm. Genererieren Sie dadurch eine schnelle Uhr und testen Sie, ob die Ausgangsfrequenz des Moduls tats\"achlich 320MHz ist.
+
+\subsection{Arithmetik, Arrays und Variablen}
+\subsubsection{ieee.numeric\_std.all Bibliothek}
+In der ieee.numeric\_std.all Bibliothek sind mathematische Funktionen enthalten. Funktionen k\"onnen nicht sequentiell sein. Funktionen k\"onnen verwendet werden, um Code zu vereinfachen. Außerdem sind die Funktionen aus der Bibliothek bereits optimiert. Man sollte diese verwenden, anstatt den Code selber zu schreiben.\newline 
+
+Aufgaben:\newline
+1.: Sehen Sie sich die Funktionen "+" und "*" in der ieee.numeric\_std.all Bibliothek an und vergleichen Sie die "+" Funktion mit Ihrem Volladdierer.\newline
+2.: Implementieren Sie einen Multiplikator mit der Funktion "*" aus der ieee.numeric\_std.all Bibliothek und mit denen Ihnen bekannten Methoden ohne Verwendung der Bibliothek. Sehen Sie sich die Schaltungen in "Elaborated Design" und "Synthesizer/Schematic" an und vergleichen Sie die Ergebnisse.\newline
+
+\subsubsection{Arithmetische Funktionen}
+Die ieee.numeric\_std.all Bibliothek enth\"alt Funktionen zu Typumwandlung und arithmetischen Operationen auf Integern. Funktionen haben in VHDL immer einen R\"uckgabeparameter und k\"onnen mehrere Eingabeparameter haben. Der R\"uckgabewert kann wie ein Signal gespeichert werden. Die Syntax f\"ur die Typumwandlung zwischen std\_logic\_vector und Unsigned ist:\newline
+
+Signal a: std\_logic\_vector (Länge downto 0);\newline
+Signal b: unsigned (L\"ange downto 0);\newline
+b<=unsigned(a);\newline
+a und b m\"ussen die gleiche L\"ange haben. Falls dies nicht der Fall ist, kann man mit der Funktion "\&" zwei Vektoren oder Unsigned zusammenf\"ugen. Syntax:\newline
+Signal c: unsigned (Länge*2 downto 0);\newline
+c<=b\&b;\newline
+Zur Erinnerung die Syntax der For-Schleife:\newline
+for I in L\"ange to 0 loop\newline
+SEQUENZ\newline
+if( BEDINGUNG) then\newline
+exit;\newline
+end if;\newline
+end loop;\newline
+Das exit Statement kann benutzt werden, um die Schleife vorzeitig zu beenden.\newline
+
+Aufgaben:\newline
+1.: Sehen Sie sich die Definition der "Shift\_Left"-Funktion unter der folgenden Adresse an. Benutzen Sie dies, um eine Zahl mit zwei zu multiplizieren. Testen Sie Ihre Schaltung.\newline
+https://www.csee.umbc.edu/portal/help/VHDL/packages/numeric\_std.vhd\newline
+2.: Erweitern Sie Ihre Schaltung zu einem kombinatorischen 8x8 Multiplizierer. Sehen Sie sich die Schaltung in "Elaborated Design" und in "Synthesizer/Schematic" an und vergleichen Sie die Ergebnisse mit denen Ihres ersten Multiplizierers.\newline
+3.: \"Uberlegen Sie sich, wie Sie eine Shift-Funktion f\"ur std\_logic\_vector implementieren k\"onnten.\newline
+
+\subsubsection{Arrays}
+Mit Arrays l\"asst sich VHDL-Code vereinfachen. Die Syntax, um in VHDL ein Array anzulegen, ist:\newline
+type TYPENNAME is array of (L\"ANGE) of ELEMENTTYP;\newline
+
+Aufgabe:\newline
+Verwenden Sie Ihr Wissen um Arrays und For-loops, um Ihren kombinatorischen Multiplizierer zu vereinfachen. Sehen Sie sich Ihre Schaltung in "Elaborated Design" und "Synthesis/Schematic" an und vergleichen Sie die Ergebnisse mit denen aus der vorherigen Aufgabe.
+
+\subsubsection{Variablen}
+Signale werden in FPGAs, wenn nicht anders angelegt, parallel verarbeitet. Wenn man VHDL in serielle Strukturen zwingen m\"ochte, kann man Variablen verwenden. Variablen k\"onnen nur innerhalb von Prozessen angelegt werden. Die Syntax daf\"ur ist:\newline
+variable VARIABLENNAME : VARIABLENTYP;\newline
+Die Variablentypen sind die gleichen wie bisher bei Signalen.\newline
+
+Aufgaben:\newline
+1.: Implementieren Sie eine einfache Schaltung, mit der Sie die Unterschiede zwischen Signalen und Variablen demonstrieren k\"onnen. \newline
+2.: Sehen Sie sich Ihre Schaltung in Elaborated Design" und "Synthesis/Schematic" an und vergleichen Sie die Ergebnisse.\newline
+
+
+\subsubsection{Vergleichsfunktionen}
+Um die Gr\"o{\ss}e von Vektoren/Integern zu vergleichen, k\"onnen Vergleichsfunktionen benutzt werden. Für std\_logic\_vector sind die Vergleichsfunktionen standardm\"a{\ss}ig definiert, f\"ur Integer wird die ieee.numeric\_std.all Bibliothek verwendet.\newline
+
+Aufgaben:\newline
+1.: Implementieren Sie eine Schaltung, um die Vergleichsfunktion zu demonstrieren.\newline
+2.: Implementieren Sie eine eigene Vergleichsfunktion für Std\_logic\_vector.\newline
+
+\subsection{Serielle Kommunikation}
+\subsubsection{UART}
+Das Basys3-board kann \"uber eine JTAG-UART-Schnittstelle mit einem externen Ger\"at kommunizieren, beispielsweise einem PC. \"Uber diese Schnittstelle haben Sie bisher das FPGA programmiert. Die Daten werden byteweise seriell \"uber die Schnittstelle versendet. Zus\"atzlich wird eine logische 1 als Start-Bit und eine logische 0 als Stop-Bit mitgesendet. Die Bits werden in einem Schieberegister gespeichert, bis sie gesendet werden k\"onnen. In VHDL kann eine UART-Schnitstelle wie folgt instanziert werden:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity UART_TX_CTRL is
+    Port ( SEND : in  STD_LOGIC;
+           DATA : in  STD_LOGIC_VECTOR (7 downto 0);
+           CLK : in  STD_LOGIC;
+           READY : out  STD_LOGIC;
+           UART_TX : out  STD_LOGIC);
+end UART_TX_CTRL;
+
+architecture Behavioral of UART_TX_CTRL is
+
+type TX_STATE_TYPE is (RDY, LOAD_BIT, SEND_BIT);
+
+constant BIT_TMR_MAX : std_logic_vector(13 downto 0) := "10100010110000";
+--Hiermit wird der Frequenzteiler für die BAUD rate eingestellt
+
+constant BIT_INDEX_MAX : natural := 10;
+
+signal bitTmr : std_logic_vector(13 downto 0) := (others => '0');
+--Zählt mit Uhrfrequenz  hoch bis bit_tmr_max,
+--signalisiert, wie lange das aktuelle bit stabil gehalten wurde
+
+signal bitDone : std_logic;
+--wird aktiv, wenn bittmr=bit_tmr_max, zeigt an,
+ dass das nächste bit geladen werden kann
+
+signal bitIndex : natural;
+--speichert den Index des nächsten zu ladenen bits
+
+signal txBit : std_logic := '1';
+--speichert das gerade zu sendene bit
+
+signal txData : std_logic_vector(9 downto 0);
+--enthält das gesamte zu sendene Datenpaket,
+--also Start-Bit, 1 byte Daten, Stop-Bit
+
+signal txState : TX_STATE_TYPE := RDY;
+
+begin
+
+next_txState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		case txState is 
+		when RDY =>
+			if (SEND = '1') then
+				txState <= LOAD_BIT;
+			end if;
+		when LOAD_BIT =>
+			txState <= SEND_BIT;
+		when SEND_BIT =>
+			if (bitDone = '1') then
+				if (bitIndex = BIT_INDEX_MAX) then
+					txState <= RDY;
+				else
+					txState <= LOAD_BIT;
+				end if;
+			end if;
+		when others=>
+			txState <= RDY;
+		end case;
+	end if;
+end process;
+--Dieser Prozess schaltet die einzelnen Zustände des Übertragungszustandes durch,
+--ist ein simpler Zustandsautomat
+
+bit_timing_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			bitTmr <= (others => '0');
+		else
+			if (bitDone = '1') then
+				bitTmr <= (others => '0');
+			else
+				bitTmr <= bitTmr + 1;
+			end if;
+		end if;
+	end if;
+end process;
+--Dieser Prozess zählt bitTmr hoch und setzt es zurück
+
+bitDone <= '1' when (bitTmr = BIT_TMR_MAX) else '0';
+--Zeigt an, dass das nächste bit geladen werden muss
+
+bit_counting_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			bitIndex <= 0;
+		elsif (txState = LOAD_BIT) then
+			bitIndex <= bitIndex + 1;
+		end if;
+	end if;
+end process;
+--Dieser Prozess schaltet die einzelnen zu sendenen Bits (10 Stück)
+--eines einzelnen Übertragungsvorganges durch
+
+tx_data_latch_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (SEND = '1') then
+			txData <= '1' & DATA & '0';
+		end if;
+	end if;
+end process;
+--Dieser Prozess lädt das aktuelle Datenbyte 
+--mit dem Start- und Stop-Bit in den zu sendenen Vektor
+
+tx_bit_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			txBit <= '1';
+		elsif (txState = LOAD_BIT) then
+			txBit <= txData(bitIndex);
+		end if;
+	end if;
+end process;
+--Dieser Prozess lädt das aktuelle Datenbit aus dem gesamten Bitvektor
+
+UART_TX <= txBit;
+--überträgt das aktuelle zu sendene Bit in das Hauptprogramm
+READY <= '1' when (txState = RDY) else '0';
+--Überträgt den Zustand "Ready" an das Hauptprogramm
+
+end Behavioral;
+\end{verbatim}
+\citep{DigilentSeriellesProjekt}\newline
+Die Kommentare sollten dem Verst\"andnis helfen. Verwenden Sie diese ab sofort, wenn Sie langen Code schreiben, um das Verst\"andnis des Codes zu erleichtern.
+
+\subsubsection{BAUD rate}
+Die Baudrate gibt an, mit welcher Frequenz Datenbits \"uber die serielle Schnittstelle \"ubertragen werden. F\"ur das Basys3-board wird eine BAUD rate von 9600 empfohlen. Das heißt, dass 9600 bits pro Sekunde \"ubertragen werden.\citep{Baudrate}\newline
+
+
+\subsubsection{main}
+Im Hauptprogramm werden die zu sendenen Daten festgelegt und dann in der richtigen Reihenfolge zum Versenden in die UART-Komponente geladen.
+
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity main is
+    Port ( CLK : in std_logic;
+           UART_TXD 	: out  STD_LOGIC;
+           BTN 			: in  STD_LOGIC_VECTOR (4 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component UART_TX_CTRL
+Port(
+	SEND : in std_logic;
+	DATA : in std_logic_vector(7 downto 0);
+	CLK : in std_logic;          
+	READY : out std_logic;
+	UART_TX : out std_logic
+	);
+end component;
+
+type UART_STATE_TYPE is (RST_REG, LD_INIT_STR,
+ SEND_CHAR, RDY_LOW, WAIT_RDY, WAIT_BTN, LD_BTN_STR);
+--Hier werden die einzelnen Zustände der Übertragung festgelegt
+type CHAR_ARRAY is array (integer range<>) of std_logic_vector(7 downto 0);
+
+constant RESET_CNTR_MAX : std_logic_vector(17 downto 0) := "110000110101000000";
+-- 100,000,000 * 0.002 = 200,000 = clk cycles per 2 ms
+constant MAX_STR_LEN : integer := 27;
+constant WELCOME_STR_LEN : natural := 27;
+constant BTN_STR_LEN : natural := 24;
+
+constant WELCOME_STR : CHAR_ARRAY(0 to 26) := (X"0A",X"0D",X"42",X"41",X"53",X"59",X"53",
+X"33",X"20",X"47",X"50",X"49",X"4F",X"2F",X"55",X"41",X"52",X"54",X"20",X"44",X"45",X"4D",X"4F",
+X"21",X"0A",X"0A",X"0D");
+--Dies ist die Hexadezimaldarstellung von Daten in VHDL
+
+constant BTN_STR : CHAR_ARRAY(0 to 23) := (X"42",X"75",X"74",X"74",X"6F",X"6E",X"20",X"70",X"72",
+X"65",X"73",X"73",X"20",X"64",X"65",X"74",X"65",X"63",X"74",X"65",X"64",X"21",X"0A",X"0D");
+
+signal sendStr : CHAR_ARRAY(0 to (MAX_STR_LEN - 1));
+--Hier werden die zu sendenen Daten zwischengespeichert
+signal strEnd : natural;
+--Markiert das Ende der zu sendenen Daten
+signal strIndex : natural;
+--Hiermiet werden die einzelnen Byte der zu sendenen Daten durchgeschaltet
+
+signal uartRdy : std_logic;
+--Signalisiert, dass das nächste Bit gesendet werden kann
+signal uartSend : std_logic := '0';
+--Leitet Signal, dass das nächste bit gesendet werden kann an, an die UART-Komponente weiter
+signal uartData : std_logic_vector (7 downto 0):= "00000000";
+--speichert das aktuell zu sendene Datenbyte
+signal uartTX : std_logic;
+--Enthält das aktuell zu sendene Bit
+
+signal uartState : UART_STATE_TYPE := RST_REG;
+--Instanziert einen Zustandsautomaten mit den oben festgelegten Zuständen
+signal reset_cntr : std_logic_vector (17 downto 0) := (others=>'0');
+--Zählt hoch bis reset_cntr_max, um einen Reset auszulösen, falls nötig
+
+signal btnDetect : std_logic;
+--signalisiert, dass Knopf gedrückt wurde
+signal btnDeBnc : std_logic_vector (4 downto 0);
+--Normalerweise benutzt, um falsch positive Eingaben beim Knopfdruck zu vermeiden,
+--hier der Einfachheit halber deaktiviert
+
+begin
+
+btnDetect<=btn(0);
+btnDeBnc(4)<=btn(0);
+
+process(CLK)
+begin
+  if (rising_edge(CLK)) then
+    if ((reset_cntr = RESET_CNTR_MAX) or (uartState /= RST_REG)) then
+      reset_cntr <= (others=>'0');
+    else
+      reset_cntr <= reset_cntr + 1;
+    end if;
+  end if;
+end process;
+--Dieser Prozess löst nach einer bestimmten Zeit einen reset aus, falls nötig
+
+next_uartState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (btnDeBnc(4) = '1') then
+			uartState <= RST_REG;
+		else	
+			case uartState is 
+			when RST_REG =>
+        if (reset_cntr = RESET_CNTR_MAX) then
+          uartState <= LD_INIT_STR;
+        end if;
+			when LD_INIT_STR =>
+				uartState <= SEND_CHAR;
+			when SEND_CHAR =>
+				uartState <= RDY_LOW;
+			when RDY_LOW =>
+				uartState <= WAIT_RDY;
+			when WAIT_RDY =>
+				if (uartRdy = '1') then
+					if (strEnd = strIndex) then
+						uartState <= WAIT_BTN;
+					else
+						uartState <= SEND_CHAR;
+					end if;
+				end if;
+			when WAIT_BTN =>
+				if (btnDetect = '1') then
+					uartState <= LD_BTN_STR;
+				end if;
+			when LD_BTN_STR =>
+				uartState <= SEND_CHAR;
+			when others=> --should never be reached
+				uartState <= RST_REG;
+			end case;
+		end if ;
+	end if;
+end process;
+--Dieser Prozess schaltet die einzelnen Zustände des Übertragungsvorganges durch
+
+string_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR) then
+			sendStr <= WELCOME_STR;
+			strEnd <= WELCOME_STR_LEN;
+		elsif (uartState = LD_BTN_STR) then
+			sendStr(0 to 23) <= BTN_STR;
+			strEnd <= BTN_STR_LEN;
+		end if;
+	end if;
+end process;
+--Dieser Prozess wählt die zu sendenen Daten aus
+
+char_count_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR or uartState = LD_BTN_STR) then
+			strIndex <= 0;
+		elsif (uartState = SEND_CHAR) then
+			strIndex <= strIndex + 1;
+		end if;
+	end if;
+end process;
+--Dieser Prozess inkrementiert den Index für die zu sendenen Byte
+
+char_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = SEND_CHAR) then
+			uartSend <= '1';
+			uartData <= sendStr(strIndex);
+		else
+			uartSend <= '0';
+		end if;
+	end if;
+end process;
+--Dieser Prozess lädt das zu sendene Byte
+
+Inst_UART_TX_CTRL: UART_TX_CTRL port map(
+		SEND => uartSend,
+		DATA => uartData,
+		CLK => CLK,
+		READY => uartRdy,
+		UART_TX => uartTX 
+	);
+
+UART_TXD <= uartTX;
+--Instanzierung der UART Komponente
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Teraterm und Ascii}
+Um die gesendeten Daten auf Ihrem Computer zu sehen, ben\"otigen Sie ein serielles Interface, das die Nachricht sichtbar macht. Digilent empfiehlt f\"ur das Basys3-board Teraterm. Realterm hat jedoch den Vorteil, dass man einstellen kann, wie Daten dargestellt werden.
+
+\subsubsection{Aufgaben}
+
+Aufgaben:\newline
+1.: Senden Sie eine andere Nachricht als die voreingestellte an Ihren Computer.\newline
+2.: Ändern Sie die Baudrate in dem Projekt und beobachten Sie, welche Zeichen Sie dann an Ihrem PC empfangen. Was f\"allt Ihnen auf? Woran k\"onnte das liegen?\newline
+3.: Implementieren Sie einen Debouncer. Wof\"ur wird dieser benutzt?\newline
+4.: Implementieren Sie ein Frequenzmessger\"at, \"ubertragen Sie die gemessene Frequenz an Ihren Computer  und \"uberlegen Sie sich, wie Sie damit die Gatterlaufzeiten des FPGA bestimmen k\"onnen. Sehen Sie sich die Schaltung in "Elaborated Design" und "Synthesis/Schematic" an.\newline
+
+\subsection{Simulation}
+\subsubsection{Behavioral Simulation}
+Laden Sie Ihr Projekt, in dem Sie Signale und Variablen verglichen haben. \newline
+-W\"ahlen Sie im Flow Navigator "Run Simulation"\newline
+-W\"ahlen Sie "Run Behavioral Simulation"\newline
+-Im nun offenen Fenster sehen Sie die Signale und Variablen der von Ihnen geladenen Entity (in diesem Projekt nur "main")\newline
+-Unter "Untitled" rechtsklicken Sie auf Ihre Schalter (sw[15:0]) und w\"ahlen Sie "Force Constant" und setzen Sie alle Schalter auf "1"\newline
+-Unter "Untitled" rechtsklicken Sie auf Ihren Knopf (btnd) und w\"ahlen Sie "Force Clock"\newline
+-"Value Radix": binary, "Leading edge value": 1, "Trailing edge value": 0, "Period" : 10ns. Lassen Sie die anderen Werte unver\"andert\newline
+-Sie sollten unten in der "Tcl Console" die beiden Befehle\newline
+add\_force \{/main/sw\} -radix bin \{1111111111111111 0ns\} und \newline
+add\_force \{/main/btnd\} -radix bin \{1 0ns\} \{0 5000ps\} -repeat\_every 10000ps sehen.\newline
+-Schreiben Sie "run 50 ns" in die Konsole.\newline
+-Sehen Sie sich das Ergebnis Ihrer Simulation an.\newline
+
+Aufgaben:\newline
+1.: Erkl\"aren Sie, was Sie gerade eben simuliert haben.\newline
+2.: Kopieren Sie Ihre Eingaben aus der Konsole in eine Textdatei und \"andern Sie die Dateiendung in ".tcl". Schreiben Sie "Restart" in die erste Zeile. Laden Sie diese  Datei dann in die Simulation, indem Sie den kompletten Dateipfad in die Konsole schreiben. (Hinweis: /-->\symbol{92} ). Schalten Sie dann die Schalter ein und aus und beobachten Sie das Ergebnis.
+
+\subsubsection{Post-Synthesis Functional Simulation}
+-W\"ahlen Sie im Flow Navigator "Run Simulation"\newline
+-W\"ahlen Sie "Run Post-Synthesis Functional Simulation"\newline
+-Laden Sie Ihre tcl-Datei \"uber die Konsole\newline
+-Verwenden Sie "Zoom Fit" im Simulationsfenster, falls n\"otig\newline
+-Rechtklicken Sie auf Ihr Hauptprogramm ("main") unter "Scopes"\newline
+-W\"ahlen Sie "Go to Source Code"\newline
+-Sie k\"onnen nun in "main(Hauptprogramm)\_funct\_synth.vhd" sehen, was Vivado aus Ihrem VHDL Code nach der Synthese gemacht hat\newline
+
+Aufgaben:\newline
+1.: Erkl\"aren Sie, was Sie gerade eben simuliert haben.\newline
+2.: Warum sind einige der Singnale am Anfang unbestimmt (mit X markiert)?\newline
+3.: Warum werden die internen Signale und Variablen nicht angezeigt?\newline
+4.: Erweitern Sie Ihre Simulation um weitere Schalterwechsel und beobachten Sie das Ergebnis.
+
+\subsubsection{Post-Synthesis Timing Simulation}
+-W\"ahlen Sie im Flow Navigator "Run Simulation"\newline
+-W\"ahlen Sie "Run Post-Synthesis Timing Simulation"\newline
+-Laden Sie Ihre tcl-Datei \"uber die Konsole\newline
+-Verwenden Sie "Zoom Fit" im Simulationsfenster, falls n\"otig\newline
+
+Aufgaben\newline
+1.: Erkl\"aren Sie, was Sie gerade eben simuliert haben.\newline
+2.: Welches Ergebnis sehen Sie?\newline
+3.: Was ist der Unterschied zur vorherigen Simulation?
+
+\subsubsection{Post-Imlementation Functional Simulation}
+-W\"ahlen Sie im Flow Navigator "Run Simulation"\newline
+-W\"ahlen Sie "Run Post-Implementation Functional Simulation"\newline
+-Laden Sie Ihre tcl-Datei \"uber die Konsole\newline
+-Verwenden Sie "Zoom Fit" im Simulationsfenster, falls n\"otig\newline
+
+Aufgaben\newline
+1.: Erkl\"aren Sie, was Sie gerade eben simuliert haben.\newline
+2.: Welches Ergebnis sehen Sie?\newline
+3.: Was ist der Unterschied zur Post-Synthesis Functional Simulation?
+
+\subsubsection{Post-Imlementation Timing Simulation}
+-W\"ahlen Sie im Flow Navigator "Run Simulation"\newline
+-W\"ahlen Sie "Run Post-Implementation Functional Simulation"\newline
+-Laden Sie Ihre tcl-Datei \"uber die Konsole\newline
+-Verwenden Sie "Zoom Fit" im Simulationsfenster, falls n\"otig\newline
+
+Aufgaben\newline
+1.: Erkl\"aren Sie, was Sie gerade eben simuliert haben.\newline
+2.: Welches Ergebnis sehen Sie?\newline
+3.: Was ist der Unterschied zur Post-Implemenation Functional Simulation?\newline
+4.: Was ist der Unterschied zur Post-Synthesis Timing Simulation?
+
+\subsection{Digital Regelung}
+\subsubsection{Phasen-Frequenz-Detektor}
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Block_PFD.png}};
+\end{tikzpicture}
+\caption{Blockschaltbild PFD}
+\end{center}
+\end{figure}
+Ein simpler digitaler Phasen-Frequenz-Detektor hat zwei Eing\"ange f\"ur die beiden zu vergleichenden Eingangsfrequenzen und zwei Ausg\"ange f\"ur die Steuersignale der Ladungspumpe.\citep{PFD} \newline
+
+
+Aufgaben:\newline
+1.: Erkl\"aren Sie anhand des Blockschaltbildes die Funktionsweise eines Phasen-Frequenz-Detektors.\newline
+2.: Implementieren Sie in VHDL ein Modul f\"ur einen PFD und testen Sie die Schaltung durch ein Simulationstool.
+
+\subsubsection{Digitale Ladungspumpe}
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=0.3\textwidth]{Block_CP.png}};
+\end{tikzpicture}
+\caption{Blockschaltbild Analoge Ladungspumpe}
+\end{center}
+\end{figure}
+Eine analoge Ladungspumpe, wie hier dargestellt, integriert einen Strom \"uber einen Kondensator und stellt dadurch die Ausgangsspannung $V_{0}$ ein. Der Strom wird \"uber die Schalter "Up" und "Down" gesteuert. Wenn "Up" geschlossen ist und "Down" offen, dann wird der Kondensator \"uber die obere Stromquelle geladen. Wenn "Down" geschlossen ist und "Up" offen, wird der Kondensator \"uber die untere Stromquelle entladen. In den beiden anderen F\"allen bleibt die Spannung im Kondensator konstant. \citep{CP} \newline
+
+
+Aufgaben:\newline
+1.: Skizzieren Sie die Ladekurve f\"ur diese Art von Ladungspumpe. Wie w\"urde die Kurve aussehen, wenn der Kondensator \"uber eine Spannungsquelle geladen wird?\newline
+2.: Implementieren Sie eine digitale Ladungspumpe in VHDL. Was ist das \"Aquivalent des Kondensators und des Ladungsstromes und welchem der beiden analogen Ladungsmodelle entpricht dies?
+
+\subsubsection{Numerisch kontrollierter Oszillator}
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Block_PA.png}};
+\end{tikzpicture}
+\caption{Phasenakkumulator}
+\end{center}
+\end{figure}
+Ein Phasenakkumulator ist eine Inkrementier-Schaltung, die einen Registerwert mit jedem Taktzyklus um einen variablen Wert erh\"oht.\citep{PA} \newline
+
+
+Aufgaben:\newline
+1.: Erkl\"aren Sie anhand des Bildes, wie Sie einen Phasenakkumulator f\"ur eine regelbare Signalquelle nutzen k\"onnen.\newline
+2.: Implementieren Sie einen NCO mit einem Rechtecksignal als Ausgang in VHDL.\newline
+3.: \"Uberlegen Sie sich, wie Sie diese Schaltung erweitern k\"onnen, um ein Sinussignal zu erzeugen.
+
+\subsubsection{Phasenregelschleife}
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Block_PLL.png}};
+\end{tikzpicture}
+\caption{Blockschaltbild PLL}
+\end{center}
+\end{figure}
+Eine Phasenregelschleife nimmt eine Eingangsfrequenz entgegegen und synchronisiert ein Ausgangssignal mit diesem Eingangssignal. Durch den Einsatz von Frequenzteilern lassen sich dadurch verschiedene Frequenzen synthetisieren, deren Langzeitstabilit\"at der des Eingangssignals entspricht. \newline
+
+Aufgabem:\newline
+1.: Implementieren Sie eine Phasenregelschleife aus den einzelnen Modulen, die Sie bisher erstellt haben. Testen Sie Ihre Ausgangsfrequenz.\newline
+2.: Erweitern Sie Ihre Schaltung um einen einstellbaren Vorteiler, der Ihre Eingangsfrequenz herunterteilt. Testen Sie Ihre Ausgangsfrequenz.\newline
+3.: Erweitern Sie Ihre Schaltung um einen eintellbaren Frequenzteiler in der R\"uckf\"uhrung. Stellen die den Teilerfaktor Ihres Vorteilers auf $2^{-16}$ ein. Testen Sie Ihre Ausgangsfrequenz.
+
+\subsubsection{Digitale Filter}
+Wie an der vorherigen Aufgabe sichtbar wurde, ist das Signal sehr ungenau. Man kann das Signal jedoch mit Filtern stabilisieren. Die Formel f\"ur einen Filter mit endlicher Impulsantwort (FIR-Filter) ist:\newline
+y[n]=\(\sum \limits_{i=1}^N b_ {i}*x[n-i] \) \newline
+mit y[n] als Ausgangssignal/Ausgangssignalvektor, x[n] als Eingangssignal/Eingangssignalvektor \citep{DigitalFilter} \newline
+
+
+Aufgaben:\newline
+1.: Um welche Art Filter handelt es sich hier? Was ist das analoge \"Aquivalent?\newline
+2.: Implementieren Sie einen solchen Filter in VHDL, setzen Sie $ b_{i}=0$. \"Uberlegen Sie sich, an welcher Stelle Ihrer PLL dieser Filter eingebaut werden m\"usste.\newline
+3.: Integrieren Sie Ihren Filter in Ihre bestehende PLL und testen Sie die Frequenz.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{L\"osungen}
+\subsection{Erstes Projekt}
+\subsubsection{VHDL}
+
+\begin{verbatim}
+library IEEE;
+use IEEE.STD\_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD\_LOGIC;
+           btnd : in STD\_LOGIC;
+           ld0 : out STD\_LOGIC;
+           ld5 : out STD\_LOGIC);
+end main;
+
+architecture Behavioral of main is
+begin
+
+ld0 <= sw0;
+ld5 <= btnd;
+
+end Behavioral;
+verbatim
+
+\subsubsection{Contraints}
+
+\begin{verbatim}
+set\_property -dict \{ PACKAGE\_PIN V16   IOSTANDARD LVCMOS33 \} [get\_ports \{ sw0\}];
+set\_property -dict \{ PACKAGE\_PIN u17   IOSTANDARD LVCMOS33 \} [get\_ports \{ btnd\}];
+
+set\_property -dict \{ PACKAGE\_PIN e19   IOSTANDARD LVCMOS33 \} [get\_ports \{ ld0\}];
+set\_property -dict \{ PACKAGE\_PIN u15   IOSTANDARD LVCMOS33 \} [get\_ports \{ ld5\}];
+\end{verbatim}
+
+\subsubsection{Weitere L\"osung}
+1.5.3: Das FPGA hat fl\"uchtigen Speicher, wenn man die Spannung abschaltet wird das Programm gel\"oscht.
+
+\subsection{Logikgatter in VHDL und FPGAs}
+\subsubsection{Einfache Gatter}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+           sw2 : in STD_LOGIC;
+           sw3 : in STD_LOGIC;
+           sw4 : in STD_LOGIC;
+           sw5 : in STD_LOGIC;
+           sw6 : in STD_LOGIC;
+           sw7 : in STD_LOGIC;
+           sw8 : in STD_LOGIC;
+           sw9 : in STD_LOGIC;
+           sw10 : in STD_LOGIC;
+           sw11 : in STD_LOGIC;
+           sw12 : in STD_LOGIC;
+           sw13 : in STD_LOGIC;
+           sw14 : in STD_LOGIC;
+           ld0 : out STD_LOGIC;
+           ld2 : out STD_LOGIC;
+           ld4 : out STD_LOGIC;
+           ld6 : out STD_LOGIC;
+           ld8 : out STD_LOGIC;
+           ld10 : out STD_LOGIC;
+           ld12 : out STD_LOGIC;
+           ld14 : out STD_LOGIC);
+end main;
+
+architecture Behavioral of main is
+begin
+
+ld0 <= sw0 and sw1;
+ld2 <= sw2 or sw3;
+ld4 <= sw4 nand sw5;
+ld6 <= sw6 nor sw7;
+ld8 <= sw8 xor sw9;
+ld10 <= sw10 xnor sw11;
+ld12 <= not sw12;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports { sw2}];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports { sw3}];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports { sw4}];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports { sw5}];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports { sw6}];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports { sw7}];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports { sw8}];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports { sw9}];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports { sw10}];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports { sw11}];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports { sw12}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports { ld2}];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports { ld4}];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports { ld6}];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports { ld8}];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports { ld10}];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports { ld12}];
+\end{verbatim}
+4.:\newline 
+Jedes Logikgatter wird in eine LUT \"ubersetzt. Das FPGA hat intern keine Logikgatter fest verbaut.
+
+\subsubsection{Look Up Table}
+1.: Wahrheitstabellen der Logikgatter.\newline
+2.: Einer der beiden Eing\"ange muss mit "not" invertiert werden. Ein nichtsymmetrisches LUT mit zwei Eing\"angen kann immer in ein Nicht-Gatter \"ubersetzt werden.\newline
+3.: Es schaltet zwei CLBs in Reihe.
+
+\subsection{Unterfunktionen, Signale und std\_logic\_vecto}
+\subsubsection{Halbaddierer}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+
+           ld0 : out STD_LOGIC;
+           ld1 : out STD_LOGIC);
+end main;
+
+architecture Behavioral of main is
+
+begin
+
+ld0 <= sw0 and sw1;
+ld1 <= sw0 xor sw1;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports { ld1}];
+\end{verbatim}
+
+\subsubsection{Volladdierer}
+VHDL\_main.\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+           sw15 : in STD_LOGIC;
+
+           ld0 : out STD_LOGIC;
+           ld1 : out STD_LOGIC);
+end main;
+
+architecture Behavioral of main is
+begin
+
+Summe <= (not cin and not A1 and A2) or (not cin and A1 and not A2)
+or (cin and not A1 and not A2) or (cin and A1 and A2);
+Ubertrag <= (not cin and A1 and A2) or (cin and not A1 and A2)
+or (cin and A1 and not A2) or (cin and A1 and A2);
+
+end Behavioral;
+\end{verbatim}
+Contraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports { sw15}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports { ld1}];
+\end{verbatim}
+
+\subsubsection{Entity und Component}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+           sw15 : in STD_LOGIC;
+
+           ld0 : out STD_LOGIC;
+           ld1 : out STD_LOGIC);
+end main;
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+begin
+
+voll1:volladdierer port map(A1=>sw0,A2=>sw1,cin=>sw15,Ubertrag=>ld0,Summe=>ld1);
+
+end Behavioral;
+\end{verbatim}
+Contraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports { sw15}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports { ld1}];
+\end{verbatim}
+Volladdierer:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity volladdierer is
+    Port ( A1 : in STD_LOGIC;
+           A2 : in STD_LOGIC;
+           cin : in STD_LOGIC;
+           Ubertrag : out STD_LOGIC;
+           Summe : out STD_LOGIC);
+end volladdierer;
+
+architecture Behavioral of volladdierer is
+
+Summe <= (not cin and not A1 and A2) or (not cin and A1 and not A2) 
+or (cin and not A1 and not A2) or (cin and A1 and A2);
+Ubertrag <= (not cin and A1 and A2) or (cin and not A1 and A2) 
+or (cin and A1 and not A2) or (cin and A1 and A2);
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Dateiausgliederung}
+1., 2., 3.: \newline
+Die L\"osung f\"ur den Code ist identisch mit dem aus der vorherigen Aufgabe, jedoch ist die Projektstruktur jetzt anders.\newline
+4.: \newline
+Die Definition eines Moduls muss im Code vor der Instanzierung des Moduls stehen.\newline
+
+\subsubsection{Signale}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+           sw15 : in STD_LOGIC;
+
+           ld0 : out STD_LOGIC;
+           ld1 : out STD_LOGIC);
+end main;
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+begin
+
+voll1:volladdierer port map(A1=>sw0,A2=>sw1,cin=>sw15,Ubertrag=>ld0,Summe=>ld1);
+
+end Behavioral;
+\end{verbatim}
+Contraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports { sw15}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports { ld1}];
+\end{verbatim}
+Volladdierer:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity volladdierer is
+    Port ( A1 : in STD_LOGIC;
+           A2 : in STD_LOGIC;
+           cin : in STD_LOGIC;
+           Ubertrag : out STD_LOGIC;
+           Summe : out STD_LOGIC);
+end volladdierer;
+
+architecture Behavioral of volladdierer is
+
+signal wire1,wire2,wire3 : std_logic;
+
+begin
+wire1 <= A1 xor A2;
+wire2 <= wire1 and cin;
+wire3 <= A1 and A2;
+
+Summe <= wire1 xor cin;
+Ubertrag <= wire2 or wire3;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Verbindung von Komponenten}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw0 : in STD_LOGIC;
+           sw1 : in STD_LOGIC;
+           sw2 : in STD_LOGIC;
+           sw3 : in STD_LOGIC;
+           sw4 : in STD_LOGIC;
+           sw5 : in STD_LOGIC;
+           sw6 : in STD_LOGIC;
+           sw7 : in STD_LOGIC;
+           sw8 : in STD_LOGIC;
+           sw9 : in STD_LOGIC;
+           sw10 : in STD_LOGIC;
+           sw11 : in STD_LOGIC;
+           sw12 : in STD_LOGIC;
+           sw13 : in STD_LOGIC;
+           sw14 : in STD_LOGIC;
+           sw15 : in STD_LOGIC;
+           
+           ld0 : out STD_LOGIC;
+           ld1 : out STD_LOGIC;
+           ld2 : out STD_LOGIC;
+           ld3 : out STD_LOGIC;
+           ld4 : out STD_LOGIC;
+           ld5 : out STD_LOGIC;
+           ld6 : out STD_LOGIC;
+           ld7 : out STD_LOGIC;
+           ld8 : out STD_LOGIC;
+           ld9 : out STD_LOGIC;
+           ld10 : out STD_LOGIC;
+           ld11 : out STD_LOGIC;
+           ld12 : out STD_LOGIC;
+           ld13 : out STD_LOGIC;
+           ld14 : out STD_LOGIC);
+end main;
+
+
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+signal a1,b1,carry,u1,s1 : std_logic;
+signal a2,b2,u2,s2 : std_logic;
+signal a3,b3,u3,s3 : std_logic;
+signal a4,b4,u4,s4 : std_logic;
+
+begin
+
+carry<=sw0;
+a1<=sw1;
+a2<=sw2;
+a3<=sw3;
+a4<=sw4;
+b1<=sw5;
+b2<=sw6;
+b3<=sw7;
+b4<=sw8;
+
+voll1:volladdierer port map(A1=>a1,A2=>b1,cin=>carry,Ubertrag=>u1,Summe=>s1);
+voll2:volladdierer port map(A1=>a2,A2=>b2,cin=>u1,Ubertrag=>u2,Summe=>s2);
+voll3:volladdierer port map(A1=>a3,A2=>b3,cin=>u2,Ubertrag=>u3,Summe=>s3);
+voll4:volladdierer port map(A1=>a4,A2=>b4,cin=>u3,Ubertrag=>u4,Summe=>s4);
+
+ld1<=s1;
+ld2<=s2;
+ld3<=s3;
+ld4<=s4;
+ld5<=u4;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports { sw0}];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports { sw1}];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports { sw2}];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports { sw3}];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports { sw4}];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports { sw5}];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports { sw6}];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports { sw7}];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports { sw8}];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports { sw9}];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports { sw10}];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports { sw11}];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports { sw12}];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports { sw13}];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports { sw14}];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports { sw15}];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports { ld0}];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports { ld1}];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports { ld2}];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports { ld3}];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports { ld4}];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports { ld5}];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports { ld6}];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports { ld7}];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports { ld8}];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports { ld9}];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports { ld10}];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports { ld11}];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports { ld12}];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports { ld13}];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports { ld14}];
+\end{verbatim}
+3.: \newline
+sw0,sw1,sw5,ld1 = 1\newline
+sw2,sw6,ld2 = 1\newline
+sw3,sw7,ld3 = 1\newline
+sw4,sw8,ld4 = 1\newline
+4.: Maximal 7 bit, limitierendes Kriterium ist die Anzahl der Schalter.
+
+\subsubsection{std\_logic\_vector}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+Signal a,b,cin,u,s : std_logic_vector (3 downto 0);
+
+begin
+
+a(0)<=sw(1);
+a(1)<=sw(2);
+a(2)<=sw(3);
+a(3)<=sw(4);
+b(0)<=sw(5);
+b(1)<=sw(6);
+b(2)<=sw(7);
+b(3)<=sw(8);
+
+voll1:volladdierer port map(A1=>a(0),A2=>b(0),cin=>sw(0),Ubertrag=>u(0),Summe=>s(0));
+voll2:volladdierer port map(A1=>a(1),A2=>b(1),cin=>u(0),Ubertrag=>u(1),Summe=>s(1));
+voll3:volladdierer port map(A1=>a(2),A2=>b(2),cin=>u(1),Ubertrag=>u(2),Summe=>s(2));
+voll4:volladdierer port map(A1=>a(3),A2=>b(3),cin=>u(2),Ubertrag=>u(3),Summe=>s(3));
+
+ld(1)<=s(0);
+ld(2)<=s(1);
+ld(3)<=s(2);
+ld(4)<=s(3);
+ld(5)<=u(3);
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports  sw[0]];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports  sw[1]];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports  sw[2]];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports  sw[3]];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports  sw[4]];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports  sw[5]];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports  sw[6]];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports  sw[7]];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports  sw[8]];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports  sw[9]];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports  sw[10]];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports  sw[11]];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports  sw[12]];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports  sw[13]];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports  sw[14]];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports  sw[15]];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports  ld[0]];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports  ld[1]];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports  ld[2]];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports  ld[3]];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports  ld[4]];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports  ld[5]];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports  ld[6]];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports  ld[7]];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports  ld[8]];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports  ld[9]];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports  ld[10]];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports  ld[11]];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports  ld[12]];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports  ld[13]];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports  ld[14]];
+set_property -dict { PACKAGE_PIN l1   IOSTANDARD LVCMOS33 } [get_ports  ld[15]];
+\end{verbatim}
+Die Contraints Datei wird erst wieder neu eingetragen, wenn sich am Code etwas \"andert.
+
+\subsubsection{Generate Statement}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+Signal a,b,cin,u,s : std_logic_vector (3 downto 0);
+
+begin
+
+a(0)<=sw(1);
+a(1)<=sw(2);
+a(2)<=sw(3);
+a(3)<=sw(4);
+b(0)<=sw(5);
+b(1)<=sw(6);
+b(2)<=sw(7);
+b(3)<=sw(8);
+
+GENs_voll:
+for i in 0 to 3 generate
+vollex : volladdierer port map
+(A1=>a(i),A2=>b(i),cin=>cin(i),Ubertrag=>u(i),Summe=>s(i));
+end generate GENs_voll;
+
+cin(3)<=u(2);
+cin(2)<=u(1);
+cin(1)<=u(0);
+cin(0)<=sw(0);
+
+ld(1)<=s(0);
+ld(2)<=s(1);
+ld(3)<=s(2);
+ld(4)<=s(3);
+ld(5)<=u(3);
+
+end Behavioral;
+\end{verbatim}
+
+\subsection{Process Structure und State Machines}
+\subsubsection{Process Structure}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+begin
+process(sw)
+begin
+
+ld(0)<=sw(0) and sw(1);
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{If Statement}
+1.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+begin
+
+process(sw)
+begin
+
+if(sw(1 downto 0)="11" ) then
+ld(0)<='1';
+else
+ld(0)<='0';
+end if;
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+2., 3.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+begin
+
+process(sw)
+begin
+
+if(sw(1 downto 0)="11" or sw(1 downto 0)="10") then
+ld(0)<='1';
+else
+ld(0)<='0';
+end if;
+
+if(sw(3 downto 2)="11") then
+ld(2)<='1';
+elsif(sw(3 downto 2)="10")then
+ld(2)<='1';
+else
+ld(2)<='0';
+end if;
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+4.: Funktional gleicher Code kann unterschiedliche Hardware instanzieren. Dies kann Auswirkungen auf die Funktion der Schaltung haben. Dies macht sich insbesondere bei der Statemachine Aufgabe in dieser \"Ubung bemerkbar.
+
+\subsubsection{Case When Statement}
+1.:\newline
+VHDl\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+begin
+
+process(sw)
+begin
+
+case sw(1 downto 0) is
+when "11" =>
+ld(0)<='1';
+when "10" =>
+ld(0)<='1';
+when others =>
+ld(0)<='0';
+end case;
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+3.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+begin
+
+process(sw)
+begin
+
+case sw(1 downto 0) is
+when "10" =>
+ld(0)<='1';
+when "01" =>
+ld(0)<='1';
+when others =>
+ld(0)<='0';
+end case;
+
+if(sw(3 downto 2)="10" or sw(3 downto 2)="01") then
+ld(2)<='1';
+else
+ld(2)<='0';
+end if;
+
+if(sw(5 downto 4)="10") then
+ld(4)<='1';
+elsif(sw(5 downto 4)="01") then
+ld(4)<='1';
+else
+ld(4)<='0';
+end if;
+
+ld(6)<=sw(6) xor sw(7);
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{State Machines}
+1.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal zustand : std_logic_vector (1 downto 0) := "00";
+
+begin
+
+process(zustand,sw,btnd)
+begin
+
+case zustand is
+when "00" =>
+ld(0)<='1';
+ld(1)<='1';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+case sw is
+when "0001" =>
+zustand(0)<='1';
+when others =>
+
+end case;
+
+when "01" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='1';
+ld(3)<='1';
+ld(4)<='1';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+case sw is
+when "0010" =>
+zustand(1)<='1';
+when others =>
+
+end case;
+
+when "11" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='1';
+ld(7)<='1';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+case sw is
+when "0100" =>
+zustand(0)<='0';
+when others =>
+
+end case;
+
+when "10" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='1';
+ld(11)<='1';
+ld(12)<='1';
+case sw is
+when "1000" =>
+zustand(1)<='0';
+when others =>
+
+end case;
+end case;
+end process;
+end Behavioral;
+\end{verbatim}
+2.: \newline
+Die Umschaltung zwischen den einzelnen Zust\"anden funktioniert nur schlecht. Die Schaltung ist im Zustandswechsel nicht eindeutig festgelegt. Dies l\"asst sich in der n\"achsten \"Ubung mit den clock-Statements l\"osen.\newline
+3.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component volladdierer is
+port(A1 : in STD_LOGIC;
+     A2 : in STD_LOGIC;
+     cin : in std_logic;
+     Ubertrag : out STD_LOGIC;
+     Summe : out STD_LOGIC);
+end component;
+
+Signal a,b,cin,u,s : std_logic_vector (3 downto 0);
+
+begin
+
+a(0)<=sw(1);
+a(1)<=sw(2);
+a(2)<=sw(3);
+a(3)<=sw(4);
+b(0)<=sw(5);
+b(1)<=sw(6);
+b(2)<=sw(7);
+b(3)<=sw(8);
+
+GENs_voll:
+for i in 0 to 3 generate
+voll1:
+if (i=0) generate
+full0 : volladdierer port map
+(A1=>a(i),A2=>b(i),cin=>sw(0),Ubertrag=>u(i),Summe=>s(i));
+end generate;
+voll2:
+if(i/=0) generate
+full1 : volladdierer port map
+(A1=>a(i),A2=>b(i),cin=>u(i-1),Ubertrag=>u(i),Summe=>s(i));
+end generate;
+end generate;
+
+ld(1)<=s(0);
+ld(2)<=s(1);
+ld(3)<=s(2);
+ld(4)<=s(3);
+ld(5)<=u(3);
+
+end Behavioral;
+\end{verbatim}
+
+\subsection{Clock Instantiation}
+\subsubsection{Einlesen eines Frequenzsignals}
+1.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_unsigned.ALL;
+use IEEE.numeric_std.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal zustand : std_logic_vector (1 downto 0):="00";
+Signal teiler : std_logic_vector (32 downto 0);
+
+begin
+
+process(uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+teiler <= teiler+1;
+end if;
+end process;
+
+process(zustand,sw,uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+case zustand is
+when "00" =>
+if (sw(0)='1') then
+zustand(0)<='1';
+end if;
+when "01" =>
+if (sw(1)='1') then
+zustand(1)<='1';
+end if;
+when "11" =>
+if (sw(2)='1') then
+zustand(0)<='0';
+end if;
+when "10" =>
+if (sw(3)='1') then
+zustand(1)<='0';
+end if;
+end case;
+end if;
+end process;
+
+process(zustand)
+begin
+case zustand is
+when "00" =>
+ld(0)<='1';
+ld(1)<='1';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+when "01" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='1';
+ld(3)<='1';
+ld(4)<='1';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+when "11" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='1';
+ld(7)<='1';
+ld(10)<='0';
+ld(11)<='0';
+ld(12)<='0';
+when "10" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(7)<='0';
+ld(10)<='1';
+ld(11)<='1';
+ld(12)<='1';
+end case;
+end process;
+end Behavioral;
+\end{verbatim}
+Contraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports  sw[0]];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports  sw[1]];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports  sw[2]];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports  sw[3]];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports  sw[4]];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports  sw[5]];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports  sw[6]];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports  sw[7]];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports  sw[8]];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports  sw[9]];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports  sw[10]];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports  sw[11]];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports  sw[12]];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports  sw[13]];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports  sw[14]];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports  sw[15]];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports  ld[0]];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports  ld[1]];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports  ld[2]];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports  ld[3]];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports  ld[4]];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports  ld[5]];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports  ld[6]];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports  ld[7]];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports  ld[8]];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports  ld[9]];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports  ld[10]];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports  ld[11]];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports  ld[12]];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports  ld[13]];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports  ld[14]];
+set_property -dict { PACKAGE_PIN l1   IOSTANDARD LVCMOS33 } [get_ports  ld[15]];
+
+set_property -dict { PACKAGE_PIN w5   IOSTANDARD LVCMOS33 } [get_ports  uhr];
+\end{verbatim}
+\subsubsection{Frequenzteiler}
+1.:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal teiler : std_logic_vector (32 downto 0);
+
+begin
+
+process(uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+teiler<=teiler+1;
+end if;
+
+ld(14)<= teiler(26);
+
+end process;
+end Behavioral;
+
+\end{verbatim}
+Exakte Frequenz ist 100MHz/2\^{n} (n=26,27) \newline
+2.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal teiler : std_logic_vector (26 downto 0):="101111101011110000100000000";
+signal a : std_Logic;
+
+begin
+
+process(uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+teiler<=teiler-1;
+if(teiler="000000000000000000000000000") then
+teiler<="101111101011110000100000000";
+a<=not a;
+end if;
+end if;
+end process;
+
+ld(0)<=a;
+
+end Behavioral;
+\end{verbatim}
+3.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal teiler : std_logic_vector (1 downto 0) :="11";
+
+begin
+
+process(uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+teiler<=teiler-1;
+if(teiler="00") then
+ld(0)<='1';
+else
+ld(0)<='0';
+end if;
+end if;
+
+end process;
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Synchrones und Asynchrones Design}
+1.: \newline
+$$\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\multicolumn{3}{|c|}{Synchron vs Asynchron}\\
+\hline
+L & Synchron & Asynchron\\
+\hline
+Vorteile & Einsparung von FFs, kleinere Chips m\"oglich & Reset wird schneller ausgef\"uhrt\\
+\hline
+Nachteile & Reset kann verz\"ogert sein. M\"ogliche Metastabilit\"at bei Assertierung des Reset-Signals & M\"ogliche Metastabilit\"at bei Deassertierung des Reset-Signals\\
+\hline
+\end{tabularx}$$
+\captionof{table}{Synchron vs Asynchron}
+\citep{SyncvsAsync}\newline
+2.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+signal reset1,reset2 : std_logic :='0';
+signal temp1,temp2 : std_logic_vector(7 downto 0) :="00000000";
+
+begin
+
+reset1<=sw(0);
+reset2<=sw(1);
+
+process(uhr)
+begin
+
+if(rising_edge(uhr)) then
+if(reset1='1') then
+temp1<="00000000";
+else
+temp1<=temp1+1;
+end if;
+end if;
+
+if(reset2='1') then
+temp2<="00000000";
+elsif(rising_edge(uhr)) then
+temp2<=temp2+1;
+end if;
+
+end process;
+ld(7 downto 0)<=temp1;
+ld(15 downto 8)<=temp2;
+end Behavioral;
+\end{verbatim}
+3.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_unsigned.ALL;
+use IEEE.numeric_std.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal zustand : std_logic_vector (2 downto 0):="000";
+Signal teiler : std_logic_vector (32 downto 0);
+
+begin
+
+process(zustand,sw,uhr,teiler)
+begin
+if(rising_edge(uhr)) then
+if(btnd='1') then
+zustand<="000";
+else
+case zustand is
+when "000" =>
+if (sw="000001") then
+zustand<="001";
+end if;
+
+when "001" =>
+if (sw="000010") then
+zustand<="010";
+end if;
+
+when "010" =>
+if (sw="000100") then
+zustand<="011";
+end if;
+
+when "011" =>
+if (sw="001000") then
+zustand<="100";
+end if;
+
+when "100" =>
+if (sw="010000") then
+zustand<="101";
+end if;
+
+when "101" =>
+if (sw="100000") then
+zustand<="000";
+end if;
+when others=>
+zustand<="000";
+end case;
+end if;
+end if;
+end process;
+
+process(zustand)
+begin
+case zustand is
+when "000" =>
+ld(0)<='1';
+ld(1)<='1';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(6)<='0';
+ld(7)<='0';
+ld(8)<='0';
+ld(9)<='0';
+ld(10)<='0';
+ld(11)<='0';
+when "001" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='1';
+ld(3)<='1';
+ld(4)<='0';
+ld(5)<='0';
+ld(6)<='0';
+ld(7)<='0';
+ld(8)<='0';
+ld(9)<='0';
+ld(10)<='0';
+ld(11)<='0';
+when "010" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='1';
+ld(5)<='1';
+ld(6)<='0';
+ld(7)<='0';
+ld(8)<='0';
+ld(9)<='0';
+ld(10)<='0';
+ld(11)<='0';
+when "011" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(6)<='1';
+ld(7)<='1';
+ld(8)<='0';
+ld(9)<='0';
+ld(10)<='0';
+ld(11)<='0';
+when "100" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(6)<='0';
+ld(7)<='0';
+ld(8)<='1';
+ld(9)<='1';
+ld(10)<='0';
+ld(11)<='0';
+when "101" =>
+ld(0)<='0';
+ld(1)<='0';
+ld(2)<='0';
+ld(3)<='0';
+ld(4)<='0';
+ld(5)<='0';
+ld(6)<='0';
+ld(7)<='0';
+ld(8)<='0';
+ld(9)<='0';
+ld(10)<='1';
+ld(11)<='1';
+when others=>
+ld(0)<='1';
+ld(1)<='0';
+ld(2)<='1';
+ld(3)<='0';
+ld(4)<='1';
+ld(5)<='0';
+ld(6)<='1';
+ld(7)<='0';
+ld(8)<='1';
+ld(9)<='0';
+ld(10)<='1';
+ld(11)<='0';
+end case;
+end process;
+end Behavioral;
+\end{verbatim}
+Contraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports  sw[0]];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports  sw[1]];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports  sw[2]];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports  sw[3]];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports  sw[4]];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports  sw[5]];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports  sw[6]];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports  sw[7]];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports  sw[8]];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports  sw[9]];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports  sw[10]];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports  sw[11]];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports  sw[12]];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports  sw[13]];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports  sw[14]];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports  sw[15]];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports  ld[0]];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports  ld[1]];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports  ld[2]];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports  ld[3]];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports  ld[4]];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports  ld[5]];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports  ld[6]];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports  ld[7]];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports  ld[8]];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports  ld[9]];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports  ld[10]];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports  ld[11]];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports  ld[12]];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports  ld[13]];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports  ld[14]];
+set_property -dict { PACKAGE_PIN l1   IOSTANDARD LVCMOS33 } [get_ports  ld[15]];
+
+set_property -dict { PACKAGE_PIN w5   IOSTANDARD LVCMOS33 } [get_ports  uhr];
+set_property -dict { PACKAGE_PIN u17   IOSTANDARD LVCMOS33 } [get_ports  btnd];
+\end{verbatim}
+4.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal teiler : std_logic_vector (23 downto 0):="100110001001011010000000";
+signal start,stop,reset : std_Logic :='0';
+signal stopuhr : std_logic_vector(15 downto 0):="0000000000000000";
+
+begin
+
+process(uhr,teiler,stopuhr,start,stop)
+begin
+if(rising_edge(uhr)) then
+if(reset='1') then
+reset<='0';
+teiler<="100110001001011010000000";
+stopuhr<="0000000000000000";
+start<='0';
+stop<='0';
+else
+if(start='1' and stop='0') then
+if(teiler="000000000000000000000000") then
+teiler<="100110001001011010000000";
+stopuhr<=stopuhr+1;
+else
+teiler<=teiler-1;
+end if;
+end if;
+end if;
+end if;
+
+if(rising_edge(uhr)) then
+if(sw(0)='1') then
+start<='1';
+end if;
+end if;
+
+if(rising_edge(uhr)) then
+if(sw(1)='1') then
+stop<='1';
+end if;
+end if;
+
+if(rising_edge(uhr)) then
+if(sw(2)='1') then
+reset<='1';
+end if;
+end if;
+
+end process;
+
+ld<=stopuhr;
+
+end Behavioral;
+\end{verbatim}
+Maximale Aufl\"osung bei einer 100MHz Uhr: 10\^{-8}.  Durch Oversampling oder das zus\"atzliche Abfragen von fallenden Taktflanken,  l\"asst sich die Aufl\"osung jedoch erh\"ohen. Die maximale Aufl\"osung entpricht dann der Gatterlaufzeit der D-FF. \newline
+Das Verwenden eines Ringoszillators mit einer Frequenz>100MHz erh\"oht ebenfalls die Aufl\"osung. Kompliziertere Methoden wie Vernier-Delay-Lines sollten noch nicht versucht werden, mit diesen ist es jedoch m\"oglich, die Zeitaufl\"osung in den Pikosenkundenbereich zu dr\"ucken, also deutlich unterhalb der D-FF-Gatterlaufzeiten.\newline
+Maximale Zeit, die gemessen werden kann: ((2\^{17})-1)*0.1s
+
+\subsubsection{Gatterlaufzeiten}
+1.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component Inverter is
+    Port ( ein : in STD_LOGIC;
+           aus : out STD_LOGIC);
+end component;
+
+Signal a,b : std_logic_vector (4 downto 0);
+signal teiler : std_logic_vector (31 downto 0);
+
+begin
+
+GEN_INV:
+for i in 0 to 4 generate
+inve0:
+if (i=0) generate
+inv1 : Inverter port map
+(ein=>b(4),aus=>b(i));
+end generate;
+inve1:
+if(i/=0) generate
+inv1 : Inverter port map
+(ein=>b(i-1),aus=>b(i));
+end generate;
+end generate;
+
+process(b,teiler)
+begin
+
+if(rising_edge(b(0))) then
+teiler<=teiler+1;
+end if;
+ld(12)<=teiler(29);
+
+end process;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports  sw[0]];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports  sw[1]];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports  sw[2]];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports  sw[3]];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports  sw[4]];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports  sw[5]];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports  sw[6]];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports  sw[7]];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports  sw[8]];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports  sw[9]];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports  sw[10]];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports  sw[11]];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports  sw[12]];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports  sw[13]];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports  sw[14]];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports  sw[15]];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports  ld[0]];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports  ld[1]];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports  ld[2]];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports  ld[3]];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports  ld[4]];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports  ld[5]];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports  ld[6]];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports  ld[7]];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports  ld[8]];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports  ld[9]];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports  ld[10]];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports  ld[11]];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports  ld[12]];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports  ld[13]];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports  ld[14]];
+set_property -dict { PACKAGE_PIN l1   IOSTANDARD LVCMOS33 } [get_ports  ld[15]];
+
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects [get_cells ld_OBUF[0]_inst_i_1]]
+
+set_property SEVERITY {Warning}  [get_drc_checks LUTLP-1]
+
+set_property SEVERITY {Warning} [get_drc_checks NSTD-1]
+\end{verbatim}
+Inverter:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity Inverter is
+    Port ( ein : in STD_LOGIC;
+           aus : out STD_LOGIC);
+end Inverter;
+
+architecture Behavioral of Inverter is
+
+begin
+
+aus <= not ein;
+
+end Behavioral;
+\end{verbatim}
+Die Zeit, die die LED leuchtet x2, ist die Ausgangstaktperiode des Frequenzteilers. Es k\"onnen nat\"urlich auch mehrere Taktperioden gemessen werden und dann die durchschnittliche Zeit berechnet werden. Die Ausgangsfrequenz des Ringoszillators ergibt sich dann, indem man die Frequenz der blinkenden LED mit dem Teilerwert multipliziert. Aus der so berechneten Frequenz l\"asst sich die Periodendauer des Ringoszillators berechnen. Diese Zeit entspricht der Zeit, die das Signal braucht, um einmal durch alle Gatter zu laufen. Teilt man diese Zeit dann durch die Anzahl der verwendeten Gatter, erh\"alt man grob die Durchlaufzeit eines einzelnen Gatters, wenn man die Verz\"ogerungszeiten zwischen den Gattern vernachl\"assigt.\newline
+Ergebnis ungef\"ahr: 1ns
+
+\subsubsection{Vivado Clock Manager}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+signal temp : std_logic_vector(15 downto 0) :="1111111111111111";
+signal teiler : std_logic_vector(28 downto 0) :="10011000100101101000000000000";
+signal schnelluhr,resets,locks : std_logic :='0';
+
+component clk_wiz_0 is
+port
+(clk_out1 : out std_logic;
+reset : in std_logic;
+locked : out std_logic;
+clk_in1 : in std_logic);
+end component;
+
+begin
+
+UHR1: clk_wiz_0 port map(clk_out1=>schnelluhr,reset=>resets,locked=>locks,clk_in1=>uhr);
+
+process(schnelluhr)
+begin
+if(rising_edge(schnelluhr)) then
+if(teiler="0000000000000000000000000000") then
+teiler<="10011000100101101000000000000";
+temp<=temp+1;
+else
+teiler<=teiler-1;
+end if;
+end if;
+end process;
+
+ld<=temp;
+end Behavioral;
+\end{verbatim}
+
+\subsection{Arithmetik und Variablen}
+\subsubsection{ieee.numeric\_std.all Bibliothek}
+1.:\newline
+Vergleich abh\"angig von der Implementierung.\newline
+2.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+            uhr : in std_logic;
+            btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal a,b,mult: std_logic_vector (7 downto 0);
+Signal c: std_logic_vector (15 downto 0):="0000000000000000";
+signal reset : std_logic :='0';
+
+begin
+
+a<=sw(15 downto 8);
+b<=sw(7 downto 0);
+
+
+process(uhr)
+begin
+reset<=btnd;
+if(rising_edge(uhr)) then
+if(reset = '1') then
+reset <= '0';
+c<="0000000000000000";
+mult<=b;
+elsif(mult /= "00000000") then
+c<=c+a;
+mult<=mult-1;
+end if;
+end if;
+end process;
+
+ld<=c;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports  sw[0]];
+set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports  sw[1]];
+set_property -dict { PACKAGE_PIN w16   IOSTANDARD LVCMOS33 } [get_ports  sw[2]];
+set_property -dict { PACKAGE_PIN w17   IOSTANDARD LVCMOS33 } [get_ports  sw[3]];
+set_property -dict { PACKAGE_PIN w15   IOSTANDARD LVCMOS33 } [get_ports  sw[4]];
+set_property -dict { PACKAGE_PIN v15   IOSTANDARD LVCMOS33 } [get_ports  sw[5]];
+set_property -dict { PACKAGE_PIN w14   IOSTANDARD LVCMOS33 } [get_ports  sw[6]];
+set_property -dict { PACKAGE_PIN w13   IOSTANDARD LVCMOS33 } [get_ports  sw[7]];
+set_property -dict { PACKAGE_PIN v2   IOSTANDARD LVCMOS33 } [get_ports  sw[8]];
+set_property -dict { PACKAGE_PIN t3   IOSTANDARD LVCMOS33 } [get_ports  sw[9]];
+set_property -dict { PACKAGE_PIN t2   IOSTANDARD LVCMOS33 } [get_ports  sw[10]];
+set_property -dict { PACKAGE_PIN r3   IOSTANDARD LVCMOS33 } [get_ports  sw[11]];
+set_property -dict { PACKAGE_PIN w2   IOSTANDARD LVCMOS33 } [get_ports  sw[12]];
+set_property -dict { PACKAGE_PIN u1   IOSTANDARD LVCMOS33 } [get_ports  sw[13]];
+set_property -dict { PACKAGE_PIN t1   IOSTANDARD LVCMOS33 } [get_ports  sw[14]];
+set_property -dict { PACKAGE_PIN r2   IOSTANDARD LVCMOS33 } [get_ports  sw[15]];
+
+set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports  ld[0]];
+set_property -dict { PACKAGE_PIN e19   IOSTANDARD LVCMOS33 } [get_ports  ld[1]];
+set_property -dict { PACKAGE_PIN u19   IOSTANDARD LVCMOS33 } [get_ports  ld[2]];
+set_property -dict { PACKAGE_PIN v19   IOSTANDARD LVCMOS33 } [get_ports  ld[3]];
+set_property -dict { PACKAGE_PIN w18   IOSTANDARD LVCMOS33 } [get_ports  ld[4]];
+set_property -dict { PACKAGE_PIN u15   IOSTANDARD LVCMOS33 } [get_ports  ld[5]];
+set_property -dict { PACKAGE_PIN u14   IOSTANDARD LVCMOS33 } [get_ports  ld[6]];
+set_property -dict { PACKAGE_PIN v14   IOSTANDARD LVCMOS33 } [get_ports  ld[7]];
+set_property -dict { PACKAGE_PIN v13   IOSTANDARD LVCMOS33 } [get_ports  ld[8]];
+set_property -dict { PACKAGE_PIN v3   IOSTANDARD LVCMOS33 } [get_ports  ld[9]];
+set_property -dict { PACKAGE_PIN w3   IOSTANDARD LVCMOS33 } [get_ports  ld[10]];
+set_property -dict { PACKAGE_PIN u3   IOSTANDARD LVCMOS33 } [get_ports  ld[11]];
+set_property -dict { PACKAGE_PIN p3   IOSTANDARD LVCMOS33 } [get_ports  ld[12]];
+set_property -dict { PACKAGE_PIN n3   IOSTANDARD LVCMOS33 } [get_ports  ld[13]];
+set_property -dict { PACKAGE_PIN p1   IOSTANDARD LVCMOS33 } [get_ports  ld[14]];
+set_property -dict { PACKAGE_PIN l1   IOSTANDARD LVCMOS33 } [get_ports  ld[15]];
+
+set_property -dict { PACKAGE_PIN w5   IOSTANDARD LVCMOS33 } [get_ports  uhr];
+set_property -dict { PACKAGE_PIN u17   IOSTANDARD LVCMOS33 } [get_ports  btnd];
+\end{verbatim}
+\subsubsection{Arithmetische Funktionen}
+1.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+            uhr : in std_logic;
+            btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal a,b: std_logic_vector (15 downto 0):="0000000000000000";
+signal g,h : unsigned (15 downto 0);
+
+begin
+
+a<=sw;
+g<=unsigned(a);
+h<=shift_left(g,1);
+b<=std_logic_vector(h);
+ld<=b;
+
+end Behavioral;
+\end{verbatim}
+2.: \newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+            uhr : in std_logic;
+            btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal a,b: std_logic_vector (7 downto 0);
+Signal c,temp: std_logic_vector (15 downto 0):="0000000000000000";
+signal reset : std_logic :='0';
+signal f : unsigned (7 downto 0);
+signal g : unsigned (15 downto 0);
+signal d,e,g0,g1,g2,g3,g4,g5,g6,g7 : unsigned (15 downto 0);
+
+begin
+
+a<= sw(15 downto 8);
+b<=sw(7 downto 0);
+
+--d<=unsigned(a);
+temp<= X"00" & a;
+e<=unsigned(temp);
+f<=unsigned(b);
+d<="0000000000000000";
+
+process
+begin
+if(f(0)='1') then
+g0<=shift_left(e,0);
+else
+g0<=d;
+end if;
+
+if(f(1)='1') then
+g1<=shift_left(e,1);
+else
+g1<=d;
+end if;
+
+if(f(2)='1') then
+g2<=shift_left(e,2);
+else
+g2<=d;
+end if;
+
+if(f(3)='1') then
+g3<=shift_left(e,3);
+else
+g3<=d;
+end if;
+
+if(f(4)='1') then
+g4<=shift_left(e,4);
+else
+g4<=d;
+end if;
+
+if(f(5)='1') then
+g5<=shift_left(e,5);
+else
+g5<=d;
+end if;
+
+if(f(6)='1') then
+g6<=shift_left(e,6);
+else
+g6<=d;
+end if;
+
+if(f(7)='1') then
+g7<=shift_left(e,7);
+else
+g7<=d;
+end if;
+end process;
+
+ld<= std_logic_vector(g0+g1+g2+g3+g4+g5+g6+g7);
+
+end Behavioral;
+\end{verbatim}
+3.:\newline
+Shift-Module:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity shift is
+    Port ( vin : in Std_logic_vector(15 downto 0);
+            shamt : in Std_logic_vector(3 downto 0);
+           vout : out Std_logic_vector(15 downto 0));
+end shift;
+
+architecture Behavioral of shift is
+
+signal vtemp1,vtemp2 : std_logic_vector (15 downto 0);
+
+begin
+
+process
+begin
+case (shamt) is
+when "0000"=>
+vtemp1<=vin;
+when "0001"=>
+vtemp1<=vin(14 downto 0) & '0';
+when "0010"=>
+vtemp1<=vin(13 downto 0) & "00";
+when "0011"=>
+vtemp1<=vin(12 downto 0) & "00";
+when "0100"=>
+vtemp1<=vin(11 downto 0) & "00";
+when "0101"=>
+vtemp1<=vin(10 downto 0) & "00";
+when "0110"=>
+vtemp1<=vin(9 downto 0) & "00";
+when "0111"=>
+vtemp1<=vin(8 downto 0) & "00";
+when "1000"=>
+vtemp1<=vin(7 downto 0) & "00";
+when "1001"=>
+vtemp1<=vin(6 downto 0) & "00";
+when "1010"=>
+vtemp1<=vin(5 downto 0) & "00";
+when "1011"=>
+vtemp1<=vin(4 downto 0) & "00";
+when "1100"=>
+vtemp1<=vin(3 downto 0) & "00";
+when "1101"=>
+vtemp1<=vin(2 downto 0) & "00";
+when "1110"=>
+vtemp1<=vin(1 downto 0) & "00";
+when "1111"=>
+vtemp1<="0000000000000000";
+end case;
+end process;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Arrays}
+VHDL\_main.\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+Signal temp: std_logic_vector (15 downto 0):="0000000000000000";
+signal e,d : unsigned (15 downto 0);
+signal i : natural:=7;
+signal f : unsigned(7 downto 0);
+
+type zahlvek is array (7 downto 0) of unsigned(15 downto 0); 
+signal gg : zahlvek;
+
+begin
+
+temp<= X"00" & sw(15 downto 8);
+e<=unsigned(temp);
+f<=unsigned(sw(7 downto 0));
+
+process
+begin
+
+for i in 0 to 7 loop
+if(f(i)='1') then
+gg(i)<=shift_left(e,i);
+else
+gg(i)<=d;
+end if;
+end loop;
+end process;
+
+ld<= std_logic_vector(gg(0)+gg(1)+gg(2)+gg(3)+gg(4)+gg(5)+gg(6)+gg(7));
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Variablen}
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr,btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+signal a,b,c : std_logic_vector(7 downto 0);
+
+begin
+
+process (btnd)
+begin
+if (rising_edge(btnd)) then
+a <= sw(7 downto 0);
+b <= a;
+end if;
+end process;
+
+process (btnd)
+variable var : std_logic_vector (7 downto 0);
+begin
+if (rising_edge(btnd)) then
+var := sw(15 downto 8);
+c <= var;
+end if;
+end process;
+
+ld(15 downto 8)<=c;
+ld(7 downto 0)<=b;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Vergleichsfunktionen}
+1.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr,btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+signal a,b,c : std_logic_vector(7 downto 0);
+
+begin
+
+process (uhr)
+begin
+if(rising_edge(uhr)) then
+if(sw(15 downto 8)>sw(7 downto 0)) then
+c<="00000000";
+b<="11111111";
+else
+c<="11111111";
+b<="00000000";
+end if;
+end if;
+end process;
+
+ld(15 downto 8)<=c;
+ld(7 downto 0)<=b;
+
+end Behavioral;
+\end{verbatim}
+2.:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity main is
+    Port ( sw : in STD_LOGIC_vector(15 downto 0);
+           uhr,btnd : in std_logic;
+           ld :out STD_LOGIC_vector(15 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+signal a,b,c : std_logic_vector(7 downto 0);
+signal vergleich : std_logic;
+
+function vergleicher(vec1,vec2 : std_logic_vector(7 downto 0))
+return std_logic is
+variable temp : std_logic;
+begin
+for i in 7 downto 0 loop
+if(vec1(i)='1' and vec2(i)='0') then
+temp := '1';
+exit;
+elsif(vec1(i)='0' and vec2(i)='1') then
+temp := '0';
+exit;
+else
+temp := '0';
+end if;
+end loop;
+return temp;
+end vergleicher;
+
+
+begin
+
+a<=sw(15 downto 8);
+b<=sw(7 downto 0);
+
+ld(0)<=vergleicher(b,a);
+
+end Behavioral;
+\end{verbatim}
+Anmerkung: Funktionen sind nicht sequentiell, sequentielle L\"osungen w\"aren hier also falsch.
+
+\subsection{Serielle Kommunikation}
+\subsubsection{Aufgaben}
+1.:\newline
+BTN\_STR : CHAR\_ARRAY ver\"andern. Neue Zeichen aus ASCII Tabelle nehmen.\newline
+Wenn n\"otig, constant BTN\_STR\_LEN : natural := 24 \"andern.\newline
+2.:\newline
+Nachricht wird bei falscher BAUD rate falsch \"ubertragen. Teraterm ist standardm\"a{\ss}ig auf 9600 Baud eingestellt. Wenn die BAUD rate in VHDL zu niedrig ist, werden die bits zu lange gehalten und dann doppelt \"ubertragen. Bei zu hoher BAUD rate werden einige Bits nicht lange genug gehalten, um \"ubertragen werden zu k\"onnen. Dadurch fehlt ein Teil der Nachricht.\newline
+3.:\newline
+VHDL\_main.\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity main is
+    Port ( CLK : in std_logic;
+           UART_TXD 	: out  STD_LOGIC;
+           BTN 			: in  STD_LOGIC_VECTOR (4 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component UART_TX_CTRL
+Port(
+	SEND : in std_logic;
+	DATA : in std_logic_vector(7 downto 0);
+	CLK : in std_logic;          
+	READY : out std_logic;
+	UART_TX : out std_logic
+	);
+end component;
+
+component debouncer
+Generic(
+        DEBNC_CLOCKS : integer;
+        PORT_WIDTH : integer);
+Port(
+		SIGNAL_I : in std_logic_vector(4 downto 0);
+		CLK_I : in std_logic;          
+		SIGNAL_O : out std_logic_vector(4 downto 0)
+		);
+end component;
+
+type UART_STATE_TYPE is (RST_REG, LD_INIT_STR, SEND_CHAR, RDY_LOW, WAIT_RDY, WAIT_BTN, LD_BTN_STR);
+type CHAR_ARRAY is array (integer range<>) of std_logic_vector(7 downto 0);
+
+--constant TMR_CNTR_MAX : std_logic_vector(26 downto 0) := "101111101011110000100000000";
+ --100,000,000 = clk cycles per second
+--constant TMR_VAL_MAX : std_logic_vector(3 downto 0) := "1001"; --9
+constant RESET_CNTR_MAX : std_logic_vector(17 downto 0) := "110000110101000000";
+-- 100,000,000 * 0.002 = 200,000 = clk cycles per 2 ms
+constant MAX_STR_LEN : integer := 27;
+constant WELCOME_STR_LEN : natural := 27;
+constant BTN_STR_LEN : natural := 24;
+
+constant WELCOME_STR : CHAR_ARRAY(0 to 26) := (X"0A",X"0D",X"42",X"41",X"53",X"59",X"53",X"33",
+X"20",X"47",X"50",X"49",X"4F",X"2F",X"55",X"41",X"52",X"54",X"20",X"44",X"45",X"4D",X"4F",X"21",
+X"0A",X"0A",X"0D");
+constant BTN_STR : CHAR_ARRAY(0 to 23) := (X"42",X"75",X"74",X"74",X"6F",X"6E",X"20",X"70",X"72",
+X"65",X"73",X"73",X"20",X"64",X"65",X"74",X"65",X"63",X"74",X"65",X"64",X"21",X"0A",X"0D");
+
+signal sendStr : CHAR_ARRAY(0 to (MAX_STR_LEN - 1));
+signal strEnd : natural;
+signal strIndex : natural;
+
+signal uartRdy : std_logic;
+signal uartSend : std_logic := '0';
+signal uartData : std_logic_vector (7 downto 0):= "00000000";
+signal uartTX : std_logic;
+
+signal uartState : UART_STATE_TYPE := RST_REG;
+--signal clk_cntr_reg : std_logic_vector (4 downto 0) := (others=>'0'); 
+signal reset_cntr : std_logic_vector (17 downto 0) := (others=>'0');
+
+signal btnDetect : std_logic;
+signal btnDeBnc : std_logic_vector (4 downto 0):="00000";
+
+signal btnReg : std_logic_vector (3 downto 0) := "0000";
+
+begin
+
+--btnDetect<=btn(0);
+--btnDeBnc(4)<=btn(0);
+
+btn_reg_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		btnReg <= btnDeBnc(3 downto 0);
+	end if;
+end process;
+
+
+btnDetect <= '1' when ((btnReg(0)='0' and btnDeBnc(0)='1') or
+								(btnReg(1)='0' and btnDeBnc(1)='1') or
+								(btnReg(2)='0' and btnDeBnc(2)='1') or
+								(btnReg(3)='0' and btnDeBnc(3)='1')  ) else
+				  '0';
+
+
+
+process(CLK)
+begin
+  if (rising_edge(CLK)) then
+    if ((reset_cntr = RESET_CNTR_MAX) or (uartState /= RST_REG)) then
+      reset_cntr <= (others=>'0');
+    else
+      reset_cntr <= reset_cntr + 1;
+    end if;
+  end if;
+end process;
+
+next_uartState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (btnDeBnc(3) = '1') then
+			uartState <= RST_REG;
+		else	
+			case uartState is 
+			when RST_REG =>
+        if (reset_cntr = RESET_CNTR_MAX) then
+          uartState <= LD_INIT_STR;
+        end if;
+			when LD_INIT_STR =>
+				uartState <= SEND_CHAR;
+			when SEND_CHAR =>
+				uartState <= RDY_LOW;
+			when RDY_LOW =>
+				uartState <= WAIT_RDY;
+			when WAIT_RDY =>
+				if (uartRdy = '1') then
+					if (strEnd = strIndex) then
+						uartState <= WAIT_BTN;
+					else
+						uartState <= SEND_CHAR;
+					end if;
+				end if;
+			when WAIT_BTN =>
+				if (btnDetect = '1') then
+					uartState <= LD_BTN_STR;
+				end if;
+			when LD_BTN_STR =>
+				uartState <= SEND_CHAR;
+			when others=> --should never be reached
+				uartState <= RST_REG;
+			end case;
+		end if ;
+	end if;
+end process;
+
+string_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR) then
+			sendStr <= WELCOME_STR;
+			strEnd <= WELCOME_STR_LEN;
+		elsif (uartState = LD_BTN_STR) then
+			sendStr(0 to 23) <= BTN_STR;
+			strEnd <= BTN_STR_LEN;
+		end if;
+	end if;
+end process;
+
+char_count_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR or uartState = LD_BTN_STR) then
+			strIndex <= 0;
+		elsif (uartState = SEND_CHAR) then
+			strIndex <= strIndex + 1;
+		end if;
+	end if;
+end process;
+
+char_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = SEND_CHAR) then
+			uartSend <= '1';
+			uartData <= sendStr(strIndex);
+		else
+			uartSend <= '0';
+		end if;
+	end if;
+end process;
+
+Inst_btn_debounce: debouncer 
+    generic map(
+        DEBNC_CLOCKS => (2**16),
+        PORT_WIDTH => 5)
+    port map(
+		SIGNAL_I => BTN,
+		CLK_I => CLK,
+		SIGNAL_O => btnDeBnc
+	);
+
+
+Inst_UART_TX_CTRL: UART_TX_CTRL port map(
+		SEND => uartSend,
+		DATA => uartData,
+		CLK => CLK,
+		READY => uartRdy,
+		UART_TX => uartTX 
+	);
+
+UART_TXD <= uartTX;
+
+end Behavioral;
+\end{verbatim}
+Debouncer.vhd:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+USE IEEE.NUMERIC_STD.ALL;
+use IEEE.math_real.all;
+
+entity debouncer is
+    Generic ( DEBNC_CLOCKS : INTEGER range 2 to (INTEGER'high) := 2**16;
+              PORT_WIDTH : INTEGER range 1 to (INTEGER'high) := 5);
+    Port ( SIGNAL_I : in  STD_LOGIC_VECTOR ((PORT_WIDTH - 1) downto 0);
+           CLK_I : in  STD_LOGIC;
+           SIGNAL_O : out  STD_LOGIC_VECTOR ((PORT_WIDTH - 1) downto 0));
+end debouncer;
+
+architecture Behavioral of debouncer is
+
+constant CNTR_WIDTH : integer := natural(ceil(LOG2(real(DEBNC_CLOCKS))));
+constant CNTR_MAX : std_logic_vector((CNTR_WIDTH - 1) downto 0) := std_logic_vector
+(to_unsigned((DEBNC_CLOCKS - 1), CNTR_WIDTH));
+type VECTOR_ARRAY_TYPE is array (integer range <>) of std_logic_vector((CNTR_WIDTH - 1) downto 0);
+
+signal sig_cntrs_ary : VECTOR_ARRAY_TYPE (0 to (PORT_WIDTH - 1)) := (others=>(others=>'0'));
+
+signal sig_out_reg : std_logic_vector((PORT_WIDTH - 1) downto 0) := (others => '0');
+
+begin
+
+debounce_process : process (CLK_I)
+begin
+   if (rising_edge(CLK_I)) then
+   for index in 0 to (PORT_WIDTH - 1) loop
+      if (sig_cntrs_ary(index) = CNTR_MAX) then
+         sig_out_reg(index) <= not(sig_out_reg(index));
+      end if;
+   end loop;
+   end if;
+end process;
+
+counter_process : process (CLK_I)
+begin
+	if (rising_edge(CLK_I)) then
+	for index in 0 to (PORT_WIDTH - 1) loop
+	
+		if ((sig_out_reg(index) = '1') xor (SIGNAL_I(index) = '1')) then
+			if (sig_cntrs_ary(index) = CNTR_MAX) then
+				sig_cntrs_ary(index) <= (others => '0');
+			else
+				sig_cntrs_ary(index) <= sig_cntrs_ary(index) + 1;
+			end if;
+		else
+			sig_cntrs_ary(index) <= (others => '0');
+		end if;
+		
+	end loop;
+	end if;
+end process;
+
+SIGNAL_O <= sig_out_reg;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property PACKAGE_PIN W5 [get_ports CLK]
+set_property IOSTANDARD LVCMOS33 [get_ports CLK]
+create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK]
+
+set_property -dict { PACKAGE_PIN t18   IOSTANDARD LVCMOS33 } [get_ports {BTN[0]}];
+set_property -dict { PACKAGE_PIN w19   IOSTANDARD LVCMOS33 } [get_ports {BTN[1]}];
+set_property -dict { PACKAGE_PIN t17   IOSTANDARD LVCMOS33 } [get_ports {BTN[2]}];
+set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports {BTN[3]}];
+                                                                                    
+set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports {BTN[4]}];
+
+##USB-RS232 Interface
+##Bank = 16, Pin name = ,					Sch name = UART_TXD_IN
+#set_property PACKAGE_PIN B18 [get_ports RsRx]
+#set_property IOSTANDARD LVCMOS33 [get_ports RsRx]
+#Bank = 16, Pin name = ,					Sch name = UART_RXD_OUT
+set_property PACKAGE_PIN A18 [get_ports UART_TXD]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_TXD]
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]
+
+set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property CFGBVS VCCO [current_design]
+\end{verbatim}
+Der Debouncer h\"alt das Signal des Knopfes \"uber mehrere Taktzyklen. Damit wird verhindert, dass die Nachricht bei einem einzelnen Knopfdruck doppelt gesendet wird.\newline
+4.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity main is
+    Port ( CLK : in std_logic;
+           UART_TXD 	: out  STD_LOGIC;
+           BTN 			: in  STD_LOGIC_VECTOR (4 downto 0));
+end main;
+
+architecture Behavioral of main is
+
+component UART_TX_CTRL
+Port(
+	SEND : in std_logic;
+	DATA : in std_logic_vector(7 downto 0);
+	CLK : in std_logic;          
+	READY : out std_logic;
+	UART_TX : out std_logic
+	);
+end component;
+
+component frequenzmessung is
+    Port ( uhr_ref,uhr_mess : in std_logic;TR);
+type CHAR_ARRAY is array (integer range<>) of std_logic_vector(7 downto 0);
+           frequenz : out std_logic_vector(63 downto 0));
+end component;
+
+type UART_STATE_TYPE is (RST_REG, LD_INIT_STR, SEND_CHAR, RDY_LOW, WAIT_RDY, WAIT_BTN, LD_BTN_S
+
+constant RESET_CNTR_MAX : std_logic_vector(17 downto 0) := "110000110101000000";
+-- 100,000,000 * 0.002 = 200,000 = clk cycles per 2 ms
+constant MAX_STR_LEN : integer := 27;
+constant WELCOME_STR_LEN : natural := 27;
+constant BTN_STR_LEN : natural := 24;
+
+signal freq : std_logic_vector (63 downto 0);
+alias freq0 is freq (7 downto 0);
+alias freq1 is freq (15 downto 8);
+alias freq2 is freq (23 downto 16);
+alias freq3 is freq (31 downto 24);
+alias freq4 is freq (39 downto 32);
+alias freq5 is freq (47 downto 40);
+alias freq6 is freq (55 downto 48);
+alias freq7 is freq (63 downto 56);
+signal zeilenende : std_logic_vector( 7 downto 0) :=X"0A";
+signal FREQ_STR : CHAR_ARRAY(0 to 8):=(freq7,freq6,freq5,freq4,freq3,freq2,freq1,freq0,zeilenende);
+constant FREQ_STR_LEN : natural := 9;
+
+signal teiler : std_logic_vector (26 downto 0):="101111101011110000100000000";
+
+constant WELCOME_STR : CHAR_ARRAY(0 to 26) := (X"0A",X"0D",X"42",X"41",X"53",X"59",X"53",
+X"33",X"20",X"47",X"50",X"49",X"4F",X"2F",X"55",X"41",X"52",X"54",X"20",X"44",X"45",X"4D",
+X"4F",X"21",X"0A",X"0A",X"0D");
+constant BTN_STR : CHAR_ARRAY(0 to 23) := (X"42",X"75",X"74",X"74",X"6F",X"6E",X"20",X"70",
+X"72",X"65",X"73",X"73",X"20",X"64",X"65",X"74",X"65",X"63",X"74",X"65",X"64",X"21",X"0A",X"0D");
+
+
+
+signal sendStr : CHAR_ARRAY(0 to (MAX_STR_LEN - 1));
+signal strEnd : natural;
+signal strIndex : natural;
+
+signal uartRdy : std_logic;
+signal uartSend : std_logic := '0';
+signal uartData : std_logic_vector (7 downto 0):= "00000000";
+signal uartTX : std_logic;
+
+signal uartState : UART_STATE_TYPE := RST_REG;
+signal reset_cntr : std_logic_vector (17 downto 0) := (others=>'0');
+
+signal btnDetect : std_logic;
+
+signal btnReg : std_logic_vector (3 downto 0) := "0000";
+
+begin
+
+process(CLK)
+begin
+if (rising_edge(CLK)) then
+if (teiler="000000000000000000000000000") then
+teiler<="101111101011110000100000000";
+btnDetect<='1';
+else
+teiler<=teiler-1;
+btnDetect<='0';
+end if;
+end if;
+end process;
+
+process(CLK)
+begin
+  if (rising_edge(CLK)) then
+    if ((reset_cntr = RESET_CNTR_MAX) or (uartState /= RST_REG)) then
+      reset_cntr <= (others=>'0');
+    else
+      reset_cntr <= reset_cntr + 1;
+    end if;
+  end if;
+end process;
+
+next_uartState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+			case uartState is 
+			when RST_REG =>
+        if (reset_cntr = RESET_CNTR_MAX) then
+          uartState <= LD_INIT_STR;
+        end if;
+			when LD_INIT_STR =>
+				uartState <= SEND_CHAR;
+			when SEND_CHAR =>
+				uartState <= RDY_LOW;
+			when RDY_LOW =>
+				uartState <= WAIT_RDY;
+			when WAIT_RDY =>
+				if (uartRdy = '1') then
+					if (strEnd = strIndex) then
+						uartState <= WAIT_BTN;
+					else
+						uartState <= SEND_CHAR;
+					end if;
+				end if;
+			when WAIT_BTN =>
+				if (btnDetect = '1') then
+					uartState <= LD_BTN_STR;
+				end if;
+			when LD_BTN_STR =>
+				uartState <= SEND_CHAR;
+			when others=> --should never be reached
+				uartState <= RST_REG;
+			end case;
+	end if;
+end process;
+
+string_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR) then
+			sendStr <= WELCOME_STR;
+			strEnd <= WELCOME_STR_LEN;
+		elsif (uartState = LD_BTN_STR) then
+			sendStr(0 to 8) <= FREQ_STR;--sendStr(0 to 23) <= BTN_STR;
+			strEnd <= FREQ_STR_LEN;--strEnd <= BTN_STR_LEN;
+		end if;
+	end if;
+end process;
+
+char_count_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR or uartState = LD_BTN_STR) then
+			strIndex <= 0;
+		elsif (uartState = SEND_CHAR) then
+			strIndex <= strIndex + 1;
+		end if;
+	end if;
+end process;
+
+char_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = SEND_CHAR) then
+			uartSend <= '1';
+			uartData <= sendStr(strIndex);
+		else
+			uartSend <= '0';
+		end if;
+	end if;
+end process;
+
+Inst_UART_TX_CTRL: UART_TX_CTRL port map(
+		SEND => uartSend,
+		DATA => uartData,
+		CLK => CLK,
+		READY => uartRdy,
+		UART_TX => uartTX 
+	);
+	
+Inst_Frequenzmessung: Frequenzmessung port map(
+        uhr_ref=>CLK,
+        uhr_mess=>CLK,
+        frequenz=>freq
+    );
+        
+UART_TXD <= uartTX;
+
+end Behavioral;
+\end{verbatim}
+Constraints:\newline
+\begin{verbatim}
+set_property PACKAGE_PIN W5 [get_ports CLK]
+set_property IOSTANDARD LVCMOS33 [get_ports CLK]
+create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK]
+
+set_property -dict { PACKAGE_PIN t18   IOSTANDARD LVCMOS33 } [get_ports {BTN[0]}];
+set_property -dict { PACKAGE_PIN w19   IOSTANDARD LVCMOS33 } [get_ports {BTN[1]}];
+set_property -dict { PACKAGE_PIN t17   IOSTANDARD LVCMOS33 } [get_ports {BTN[2]}];
+set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports {BTN[3]}];
+                                                                                    
+set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports {BTN[4]}];
+
+##USB-RS232 Interface
+##Bank = 16, Pin name = ,					Sch name = UART_TXD_IN
+#set_property PACKAGE_PIN B18 [get_ports RsRx]
+#set_property IOSTANDARD LVCMOS33 [get_ports RsRx]
+#Bank = 16, Pin name = ,					Sch name = UART_RXD_OUT
+set_property PACKAGE_PIN A18 [get_ports UART_TXD]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_TXD]
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]
+
+set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property CFGBVS VCCO [current_design]
+
+set_property DONT_TOUCH true [get_cells Inst_Frequenzmessung/ringosz/GEN_INV[0].inve1.inv1/aus_i]
+set_property DONT_TOUCH true [get_cells Inst_Frequenzmessung/ringosz/GEN_INV[1].inve1.inv1/aus_i]
+set_property DONT_TOUCH true [get_cells Inst_Frequenzmessung/ringosz/GEN_INV[2].inve1.inv1/aus_i]
+set_property DONT_TOUCH true [get_cells Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/aus_i]
+set_property DONT_TOUCH true [get_cells Inst_Frequenzmessung/ringosz/GEN_INV[4].inve1.inv1/aus_i]
+
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[0].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[1].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[2].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[4].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[5].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[6].inve1.inv1/aus]
+
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[0].inve1.inv1/ein]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[1].inve1.inv1/ein]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[2].inve1.inv1/ein]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/ein]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[4].inve1.inv1/ein]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[5].inve1.inv1/aus]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/GEN_INV[6].inve1.inv1/aus]
+
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/uhr_ring]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_1]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_2]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_3]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_4]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_5]
+set_property DONT_TOUCH true [get_nets Inst_Frequenzmessung/ringosz/b_6]
+
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects 
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[4].inve1.inv1/aus]]
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects 
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[1].inve1.inv1/aus_inferred__0_i_1]]
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[2].inve1.inv1/aus_inferred__0_i_1__0]]
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects 
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/aus_inferred__0_i_1__1]]
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects 
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/aus_inferred__0_i_1__2]]
+set_property ALLOW_COMBINATORIAL_LOOPS true [get_nets -of_objects 
+[get_cells Inst_Frequenzmessung/ringosz/GEN_INV[3].inve1.inv1/aus_inferred__0_i_1__3]]
+
+##set_property SEVERITY {Warning}  [get_drc_checks LUTLP-1]
+
+##set_property SEVERITY {Warning} [get_drc_checks NSTD-1]
+\end{verbatim}
+Frequenzmessung.vhd:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity frequenzmessung is
+    Port ( uhr_ref,uhr_mess : in std_logic;
+           frequenz : out std_logic_vector(63 downto 0));
+end frequenzmessung;
+
+architecture Behavioral of frequenzmessung is
+
+component ring is
+    Port (uhr_ring : out STD_LOGIC);
+end component;
+
+signal zahler : std_logic_vector (63 downto 0);
+signal uhr_ring_1 : std_logic;
+
+--1x pro Sekunde wird die Frequenz gemessen
+
+begin
+
+ringosz:ring port map(uhr_ring=>uhr_ring_1);
+
+process(uhr_ring_1)
+begin
+if(rising_edge(uhr_ring_1)) then
+zahler<=zahler+1;
+end if;
+end process;
+
+process(uhr_ref)
+variable zahltemp0,zahltemp1,zahltemp2: std_logic_vector (63 downto 0);
+variable teiler : std_logic_vector(26 downto 0) :="101111101011110000011111111";
+begin
+if(falling_edge(uhr_ref)) then
+if(teiler ="000000000000000000000000000") then
+zahltemp1:=zahler;
+zahltemp0:=zahltemp1-zahltemp2;
+zahltemp2:=zahltemp1;
+teiler:="101111101011110000011111111";
+else
+teiler:=teiler-1;
+end if;
+end if;
+frequenz<=zahltemp0;
+end process;
+
+end Behavioral;
+\end{verbatim}
+Ring.vhd:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity ring is
+    Port (uhr_ring : out std_logic);
+end ring;
+
+architecture Behavioral of ring is
+
+component Inverter is
+    Port ( ein : in STD_LOGIC;
+           aus : out STD_LOGIC);
+end component;
+
+Signal a,b : std_logic_vector (6 downto 0);
+
+begin
+
+GEN_INV:
+for i in 0 to 6 generate
+inve0:
+if (i=0) generate
+inv1 : Inverter port map
+(ein=>b(6),aus=>b(i));
+end generate;
+inve1:
+if(i/=0) generate
+inv1 : Inverter port map
+(ein=>b(i-1),aus=>b(i));
+end generate;
+end generate;
+
+uhr_ring<=b(0);
+
+end Behavioral;
+\end{verbatim}
+Inverter.vhd:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity Inverter is
+    Port ( ein : in STD_LOGIC;
+           aus : out STD_LOGIC);
+end Inverter;
+
+architecture Behavioral of Inverter is
+
+begin
+
+aus <= not ein;
+
+end Behavioral;
+\end{verbatim}
+UART.vhd:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity UART_TX_CTRL is
+    Port ( SEND : in  STD_LOGIC;
+           DATA : in  STD_LOGIC_VECTOR (7 downto 0);
+           CLK : in  STD_LOGIC;
+           READY : out  STD_LOGIC;
+           UART_TX : out  STD_LOGIC);
+end UART_TX_CTRL;
+
+architecture Behavioral of UART_TX_CTRL is
+
+type TX_STATE_TYPE is (RDY, LOAD_BIT, SEND_BIT);
+
+--constant BIT_TMR_MAX : std_logic_vector(13 downto 0) := "01010001011000";
+constant BIT_TMR_MAX : std_logic_vector(13 downto 0) := "10100010110000";
+constant BIT_INDEX_MAX : natural := 10;
+
+signal bitTmr : std_logic_vector(13 downto 0) := (others => '0');
+
+signal bitDone : std_logic;
+
+signal bitIndex : natural;
+
+signal txBit : std_logic := '1';
+
+signal txData : std_logic_vector(9 downto 0);
+
+signal txState : TX_STATE_TYPE := RDY;
+
+begin
+
+next_txState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		case txState is 
+		when RDY =>
+			if (SEND = '1') then
+				txState <= LOAD_BIT;
+			end if;
+		when LOAD_BIT =>
+			txState <= SEND_BIT;
+		when SEND_BIT =>
+			if (bitDone = '1') then
+				if (bitIndex = BIT_INDEX_MAX) then
+					txState <= RDY;
+				else
+					txState <= LOAD_BIT;
+				end if;
+			end if;
+		when others=>
+			txState <= RDY;
+		end case;
+	end if;
+end process;
+
+bit_timing_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			bitTmr <= (others => '0');
+		else
+			if (bitDone = '1') then
+				bitTmr <= (others => '0');
+			else
+				bitTmr <= bitTmr + 1;
+			end if;
+		end if;
+	end if;
+end process;
+
+bitDone <= '1' when (bitTmr = BIT_TMR_MAX) else
+				'0';
+
+bit_counting_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			bitIndex <= 0;
+		elsif (txState = LOAD_BIT) then
+			bitIndex <= bitIndex + 1;
+		end if;
+	end if;
+end process;
+
+tx_data_latch_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (SEND = '1') then
+			txData <= '1' & DATA & '0';
+		end if;
+	end if;
+end process;
+
+tx_bit_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (txState = RDY) then
+			txBit <= '1';
+		elsif (txState = LOAD_BIT) then
+			txBit <= txData(bitIndex);
+		end if;
+	end if;
+end process;
+
+UART_TX <= txBit;
+READY <= '1' when (txState = RDY) else
+			'0';
+
+end Behavioral;
+\end{verbatim}
+Wie in der Aufgabe des Ringoszillators zuvor, l\"asst sich aus der gemessenen Frequenz des Ringoszillators die Periodendauer des Oszillators berechnen. Wenn man dann noch die Periodendauer durch die Anzahl der verwendeten Inverter-Gatter teilt, erhält man die Gatterlaufzeit eines einzelnen Gatters, Signallaufzeiten au{\ss}erhalb der Gatter k\"onnen wieder vernachl\"assigt werden. \newline
+Ungef\"ahres Ergebnis: 1ns\newline
+Je nach Vivado Version muss die Constraints Datei \"ahnlich wie hier angepasst werden, da sonst der Ringoszillator wegoptimiert wird.\newline
+Die Implementierung des Frequenzmessger\"ates ist hier eine einfache totzeitfreie Variante mit einer Zeitaufl\"osung von 10ns.
+
+\subsection{Simulation}
+\subsubsection{Behavioral Simulation}
+1.: Schalter auf "1" gesetzt und Knopf mehrfach gedr\"uckt.\newline
+2.: \newline
+TCL\_file:\newline
+\begin{verbatim}
+restart
+add_force {/main/btnd} -radix bin {1 0ns} {0 5000ps} -repeat_every 10000ps
+run 10 ns
+add_force {/main/sw} -radix bin {1111111111111111 0ns}
+run 50 ns
+add_force {/main/sw} -radix bin {0000000000000000 0ns}
+run 50 ns
+\end{verbatim}
+Simulationsfenster:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Behavioral_Sim.png}};
+\end{tikzpicture}
+\caption{Behavioral\_Sim}
+\end{center}
+\end{figure}
+
+\subsubsection{Post-Synthesis Functional Simulation}
+1.: \newline
+Funktionale Simulation der Schaltung nach der Synthese, also der Schaltung, die Vivado aus dem VHDL gemacht hat.\newline
+2.:\newline
+Die Signale sind noch nicht initialisiert worden. Der Simulator weiß daher nicht, welche Werte diese haben. Standardm\"a{\ss}ig initialisiert Vivado Signale mit "0", dass ignoriert der Simulator aber.\newline
+3.:\newline
+Diese sind vom Synthese-Tool in Vivado wegoptimiert worden. Man kann sehen, dass diese in "main(Hauptprogramm)\_funct\_synth.vhd" nicht mehr vorkommen.\newline
+4.:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Synth_Funct_Sim.png}};
+\end{tikzpicture}
+\caption{Post\_Synth\_Funct\_Sim}
+\end{center}
+\end{figure}
+
+\subsubsection{Post-Synthesis Timing Simulation}
+1:\newline
+Simulation der Schaltung nach Synthese unter Annahme von typischen Verz\"ogerungszeiten. Werte der Verz\"ogerungen sind dem SDF (Standard Delay File) entnommen.\citep{SDF}\newline
+2.:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Synth_Timing_Sim.png}};
+\end{tikzpicture}
+\caption{Post\_Synth\_Timing\_Sim}
+\end{center}
+\end{figure}
+2.:\newline
+Die Schalter werden nun zu Beginn mit "Z" angenommen ("Z"= hochohmig), au{\ss}erdem sind die Eingaben und Ausgaben um einige ns verschoben.
+
+\subsubsection{Post-Implementation Functional Simulation}
+1.:\newline
+Funktionale Simulation der Schaltung nach der Implementation, also der Schaltung auf der Hardware des ausgew\"ahlten Chips.\newline
+2.:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Synth_Timing_Sim.png}};
+\end{tikzpicture}
+\caption{Post\_Impl\_Synth\_Sim}
+\end{center}
+\end{figure}
+3.:\newline
+Keine Unterschiede zur Post-Synthesis Functional Simulation, Unterschiede treten hier erst auf, wenn Sie Code schreiben, der auf dem im Projekt angegebenen Chip nicht funktioniert.
+
+\subsubsection{Post-Imlementation Timing Simulation}
+1.:\newline
+Simulation der Schaltung nach Implemenation unter Annahme von realen Verz\"ogerungszeiten. Werte der Verz\"ogerungen sind dem SDF (Standard Delay File) des im Projekt spezifizierten Chips entnommen.\citep{SDF}\newline
+2.:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Synth_Timing_Sim.png}};
+\end{tikzpicture}
+\caption{Post\_Impl\_Timing\_Sim}
+\end{center}
+\end{figure}
+3.:\newline
+Die Schalter werden nun zu Beginn mit "Z" angenommen ("Z"= hochohmig), au{\ss}erdem sind die Eingaben und Ausgaben um einige ns verschoben.\newline
+4.:\newline
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Impl_Timing_Sim_Zoom.png}};
+\end{tikzpicture}
+\caption{Post\_Impl\_Timing\_Sim\_Zoom}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{Post_Impl_Timing_Sim_Zoom_2.png}};
+\end{tikzpicture}
+\caption{Post\_Impl\_Timing\_Sim\_Zoom\_2}
+\end{center}
+\end{figure}
+Die Verz\"ogerungszeiten zu den einzelnen Schaltern und Leds sind nicht exakt gleich. Dadurch werden diese nicht zur exakt gleichen Zeit umgeschaltet, sondern weichen um einige ps ab.
+
+\subsection{Digital Regelung}
+\subsubsection{Phasen-Frequenz-Detektor}
+1.:\newline
+Wenn eine positive Taktflanke in einem der beiden Flip-Flops detektiert wird, schaltet der entsprechende FF seinen Ausgang auf "1". Sobald beide Ausg\"ange auf "1" stehen, werden beide Ausg\"ange zur\"uckgesetzt. Dadurch steht der FF, der mit einer h\"oheren Frequenz betrieben wird, h\"aufiger auf "1". Damit l\"asst sich die Frequenz und die Phase der beiden Signale vergleichen.\newline
+
+2.:\newline
+VHDL\_PFD\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity PFD is
+    Port ( freqref,freqdiv : in STD_LOGIC;
+           up,down : out STD_LOGIC);
+end PFD;
+
+architecture Behavioral of PFD is
+
+signal upintern,downintern : std_logic;
+
+begin
+
+process(upintern,downintern,freqref,freqdiv)
+begin
+if((upintern and downintern)='1') then
+upintern<='0';
+downintern<='0';
+else
+if(rising_edge(freqref)) then
+upintern<='1';
+end if;
+if(rising_edge(freqdiv)) then
+downintern<='1';
+end if;
+end if;
+end process;
+
+up<=upintern;
+down<=downintern;
+
+end Behavioral;
+\end{verbatim}
+\begin{figure}[H]
+\begin{center}
+\begin{tikzpicture}
+\node[inner sep=0pt] at (0,0)
+{\includegraphics[width=1\textwidth]{PFD_Beh_Sim.png}};
+\end{tikzpicture}
+\caption{Simulation PFD}
+\end{center}
+\end{figure}
+
+\subsubsection{Digitale Ladungspumpe}
+1.:\newline
+Lineare Aufladung, kein Maximalwert. Bei Spannungsquelle: exponentieller Verlauf bis Maximalwert.\newline
+
+2.:\newline
+VHDL\_CP:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity updowncounter is
+    Port ( uhr : in STD_LOGIC;
+           schnelleuhr : in std_logic;
+           kontroll0 : in STD_LOGIC;
+           kontroll1 : in STD_LOGIC;
+           registerwert : out STD_LOGIC_VECTOR (31 downto 0));
+end updowncounter;
+
+architecture Behavioral of updowncounter is
+
+signal kontroll : std_logic_vector (1 downto 0);
+signal registerintern : std_logic_vector (31 downto 0):="10000000000000000000000000000000";
+
+begin
+
+process(uhr,schnelleuhr,kontroll,kontroll0,kontroll1)
+begin
+if(rising_edge(uhr)) then
+if(kontroll0='1' and kontroll1 ='0' and registerintern<"11111111111111111111111111111111") then
+registerintern<=registerintern+1;
+end if;
+if(kontroll0='0' and kontroll1 ='1' and registerintern>"00000000000000000000000000000000") then
+registerintern<=registerintern-1;
+end if;
+end if;
+end process;
+
+registerwert<=registerintern;
+
+end Behavioral;
+
+\end{verbatim}
+Entspricht Modell mit Stromquelle, Kondensator-\"Aquivalent: Register mit Inkrementierfunktion.
+
+\subsubsection{Numerisch kontrollierter Oszillator}
+1.:\newline
+Bei jedem \"Uberlauf des Registers muss man ein Signal invertieren. Die Anzahl der Taktzyklen, die ben\"otigt werden, um den \"Uberlauf zu erreichen, ist von einem Steuersignal abh\"angig. Der Registerwert wird mit jedem Taktzyklus um den Wert des Steuersignals inkrementiert. Durch \"Anderungen am Wert des Steuersignals l\"asst sich die Frequenz \"andern.
+
+2.:\newline
+VHDL\_NCO:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity NCO is
+    Port ( freqin : in STD_LOGIC;
+           kontrollzahler : in std_logic_vector(31 downto 0);
+           freqoutnco : out STD_LOGIC);
+end NCO;
+
+architecture Behavioral of NCO is
+
+signal kontrollregister : std_logic_vector(31 downto 0);
+signal freqintern : std_logic;
+--signal freqininvert : std_logic;
+
+begin
+
+--freqininvert<=not freqin;
+
+process(freqin)
+begin
+if(rising_edge(freqin)) then
+kontrollregister<=kontrollregister+kontrollzahler;
+if((kontrollregister+kontrollzahler)<kontrollregister) then
+freqintern <= not freqintern;
+end if;
+end if;
+end process;
+
+freqoutnco<=freqintern;
+
+end Behavioral;
+\end{verbatim}
+
+3.:\newline
+Man kann jedem Wert des NCO-Registern einen Wert der Sinuskurve zuweisen. Dies ist die Funktionsweise eines Phase-Amplitude-Converters. Diese Schaltung w\"are allerdings zu gro{\ss} um es auf dem hier verwendeten Chip zu realisieren.
+
+\subsubsection{Phasenregelschleife}
+1.,2.,3.:\newline
+VHDL\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity main is
+    Port (uhr : in std_logic;
+          sw : in std_logic_vector(15 downto 0);
+          ld : out std_logic_vector(15 downto 0);
+          UART_TXD 	: out  STD_LOGIC;
+          BTN 			: in  STD_LOGIC_VECTOR (4 downto 0)
+          );
+end main;
+
+architecture Behavioral of main is
+
+component FD is
+    Port ( freqin : in STD_LOGIC;
+           teilfak: in std_logic_vector (15 downto 0);
+           freqout : out STD_LOGIC);
+end component;
+
+component PFD is
+    Port ( freqref,freqdiv : in STD_LOGIC;
+           up,down : out STD_LOGIC);
+end component;
+
+component NCO is
+    Port ( freqin : in STD_LOGIC;
+           kontrollzahler : in std_logic_vector(31 downto 0);
+           freqoutnco : out STD_LOGIC);
+end component;
+
+component updowncounter is
+    Port ( uhr : in STD_LOGIC;
+           schnelleuhr : in std_logic;
+           kontroll0 : in STD_LOGIC;
+           kontroll1 : in STD_LOGIC;
+           registerwert : out STD_LOGIC_VECTOR (31 downto 0));
+end component;
+
+component frequenzmessung is
+    Port ( uhr_ref,uhr_mess : in std_logic;
+           frequenz : out std_logic_vector(63 downto 0));
+end component;
+
+component UART_TX_CTRL is
+    Port ( SEND : in  STD_LOGIC;
+           DATA : in  STD_LOGIC_VECTOR (7 downto 0);
+           CLK : in  STD_LOGIC;
+           READY : out  STD_LOGIC;
+           UART_TX : out  STD_LOGIC);
+end component;
+
+component LowPassFilter is
+    Port ( regin : in STD_LOGIC_vector (31 downto 0);
+           uhr : std_logic;
+           regout : out STD_LOGIC_vector (31 downto 0));
+end component;
+
+signal freqaus,hoch,runter,freq11,freq22,freq33,freq44,freq55,freqnco,freqausgang,
+freqtest,kontrolle,schnelluhr : std_logic;
+signal teilfaktor1,teilfaktor2,kontroll,phasenwert : std_logic_vector (15 downto 0);
+signal ncoregister,ncoregistertest : std_logic_vector(31 downto 0);
+
+type UART_STATE_TYPE is (RST_REG, LD_INIT_STR, SEND_CHAR, RDY_LOW, WAIT_RDY, WAIT_BTN, LD_BTN_STR);
+type CHAR_ARRAY is array (integer range<>) of std_logic_vector(7 downto 0);
+
+constant RESET_CNTR_MAX : std_logic_vector(17 downto 0) := "110000110101000000";
+-- 100,000,000 * 0.002 = 200,000 = clk cycles per 2 ms
+constant MAX_STR_LEN : integer := 27;
+constant WELCOME_STR_LEN : natural := 27;
+constant BTN_STR_LEN : natural := 24;
+
+signal freq : std_logic_vector (63 downto 0);
+alias freq0 is freq (7 downto 0);
+alias freq1 is freq (15 downto 8);
+alias freq2 is freq (23 downto 16);
+alias freq3 is freq (31 downto 24);
+alias freq4 is freq (39 downto 32);
+alias freq5 is freq (47 downto 40);
+alias freq6 is freq (55 downto 48);
+alias freq7 is freq (63 downto 56);
+signal zeilenende : std_logic_vector( 7 downto 0) :=X"0A";
+signal FREQ_STR : CHAR_ARRAY(0 to 8):=(freq7,freq6,freq5,freq4,freq3,freq2,freq1,freq0,zeilenende);
+constant FREQ_STR_LEN : natural := 9;
+
+signal teiler : std_logic_vector (26 downto 0):="101111101011110000100000000";
+
+constant WELCOME_STR : CHAR_ARRAY(0 to 26) := (X"0A",X"0D",X"42",X"41",X"53",X"59",X"53",
+X"33",X"20",X"47",X"50",X"49",X"4F",X"2F",X"55",X"41",X"52",X"54",X"20",X"44",X"45",X"4D",
+X"4F",X"21",X"0A",X"0A",X"0D");
+constant BTN_STR : CHAR_ARRAY(0 to 23) := (X"42",X"75",X"74",X"74",X"6F",X"6E",X"20",X"70",
+X"72",X"65",X"73",X"73",X"20",X"64",X"65",X"74",X"65",X"63",X"74",X"65",X"64",X"21",X"0A",X"0D");
+
+
+
+signal sendStr : CHAR_ARRAY(0 to (MAX_STR_LEN - 1));
+signal strEnd : natural;
+signal strIndex : natural;
+
+signal uartRdy : std_logic;
+signal uartSend : std_logic := '0';
+signal uartData : std_logic_vector (7 downto 0):= "00000000";
+signal uartTX : std_logic;
+
+signal uartState : UART_STATE_TYPE := RST_REG;
+signal reset_cntr : std_logic_vector (17 downto 0) := (others=>'0');
+
+signal btnDetect : std_logic;
+
+signal btnReg : std_logic_vector (3 downto 0) := "0000";
+
+signal CLK,hochtest,runtertest : std_logic;
+
+begin
+
+--Frequenzgenerierung durch PLL hier
+
+teilfaktor1<="0111111111111111";
+Vorteiler: FD port map (freqin=>uhr,teilfak=>teilfaktor1,freqout=>freq11);
+
+Detektor: PFD port map (freqref=>freq11,freqdiv=>freqausgang,up=>hoch,down=>runter);
+
+HochRunter: updowncounter port map(uhr=>uhr,schnelleuhr=>schnelluhr,kontroll0=>hoch,
+kontroll1=>runter,registerwert=>filterregister);
+
+Filter: LowPassFilter port map(regin=>filterregister,uhr=>uhr,regout=>ncoregister);
+
+StandardNCO: NCO port map(freqin=>uhr,kontrollzahler=>ncoregister,freqoutnco=>freqnco);
+
+teilfaktor2<=sw;
+Ruckteiler: FD port map (freqin=>freqnco,teilfak=>teilfaktor2,freqout=>freqausgang);
+
+
+
+
+--Frequenzmessung beginnt hier
+
+CLK<=uhr;
+
+Inst_UART_TX_CTRL: UART_TX_CTRL port map(SEND=>uartSend,
+DATA=>uartData,CLK=>CLK,READY=>uartRdy,UART_TX=>uartTX);
+	
+Inst_Frequenzmessung: Frequenzmessung port map(uhr_ref=>CLK,uhr_mess=>freqnco,frequenz=>freq);
+
+process(CLK)
+begin
+if (rising_edge(CLK)) then
+if (teiler="000000000000000000000000000") then
+teiler<="101111101011110000100000000";
+btnDetect<='1';
+else
+teiler<=teiler-1;
+btnDetect<='0';
+end if;
+end if;
+end process;
+
+process(CLK)
+begin
+  if (rising_edge(CLK)) then
+    if ((reset_cntr = RESET_CNTR_MAX) or (uartState /= RST_REG)) then
+      reset_cntr <= (others=>'0');
+    else
+      reset_cntr <= reset_cntr + 1;
+    end if;
+  end if;
+end process;
+
+next_uartState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+			case uartState is 
+			when RST_REG =>
+        if (reset_cntr = RESET_CNTR_MAX) then
+          uartState <= LD_INIT_STR;
+        end if;
+			when LD_INIT_STR =>
+				uartState <= SEND_CHAR;
+			when SEND_CHAR =>
+				uartState <= RDY_LOW;
+			when RDY_LOW =>
+				uartState <= WAIT_RDY;
+			when WAIT_RDY =>
+				if (uartRdy = '1') then
+					if (strEnd = strIndex) then
+						uartState <= WAIT_BTN;
+					else
+						uartState <= SEND_CHAR;
+					end if;
+				end if;
+			when WAIT_BTN =>
+				if (btnDetect = '1') then
+					uartState <= LD_BTN_STR;
+				end if;
+			when LD_BTN_STR =>
+				uartState <= SEND_CHAR;
+			when others=> --should never be reached
+				uartState <= RST_REG;
+			end case;
+	end if;
+end process;
+
+string_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR) then
+			sendStr <= WELCOME_STR;
+			strEnd <= WELCOME_STR_LEN;
+		elsif (uartState = LD_BTN_STR) then
+			sendStr(0 to 8) <= FREQ_STR;--sendStr(0 to 23) <= BTN_STR;
+			strEnd <= FREQ_STR_LEN;--strEnd <= BTN_STR_LEN;
+		end if;
+	end if;
+end process;
+
+char_count_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR or uartState = LD_BTN_STR) then
+			strIndex <= 0;
+		elsif (uartState = SEND_CHAR) then
+			strIndex <= strIndex + 1;
+		end if;
+	end if;
+end process;
+
+char_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = SEND_CHAR) then
+			uartSend <= '1';
+			uartData <= sendStr(strIndex);
+		else
+			uartSend <= '0';
+		end if;
+	end if;
+end process;
+
+UART_TXD <= uartTX;
+
+end Behavioral;
+\end{verbatim}
+Um die Frequenz zu testen, wurde das Frequenzmessmodul aus der vorherigen \"Ubung wiederverwendet.\newline
+VHDL\_FD:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity FD is
+    Port ( freqin : in STD_LOGIC;
+           teilfak: in std_logic_vector (15 downto 0);
+           freqout : out STD_LOGIC);
+end FD;
+
+architecture Behavioral of FD is
+
+signal teilzahl : std_logic_vector(15 downto 0);
+signal freqintern : std_logic;
+
+begin
+
+process(freqin)
+begin
+if(rising_edge(freqin)) then
+if(teilzahl="0000000000000000") then
+teilzahl<=teilfak;
+freqintern<=not freqintern;
+else
+teilzahl<=teilzahl-1;
+end if;
+end if;
+end process;
+
+freqout<=freqintern;
+
+end Behavioral;
+\end{verbatim}
+
+\subsubsection{Digitale Filter}
+1.:\newline
+Tiefpassfilter, analoges \"Aquivalent zum Beispiel ein RC-Tiefpass\newline
+2.:\newline
+VHDL\_Filter:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+--use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+entity LowPassFilter is
+    Port ( regin : in STD_LOGIC_vector (31 downto 0);
+           uhr : std_logic;
+           regout : out STD_LOGIC_vector (31 downto 0));
+end LowPassFilter;
+
+architecture Behavioral of LowPassFilter is
+
+type regarr is array (0 to 29) of unsigned (31 downto 0);
+signal inte : regarr;
+
+--signal zahler : std_logic_vector (4 downto 0);
+
+begin
+
+process(uhr)
+variable inte1 : regarr;
+variable zahler : integer;
+variable schnitt : unsigned (63 downto 0);
+--variable schnitt1 : unsigned (63 downto 0);
+variable regarrlen : integer :=30;
+begin
+if(rising_edge(uhr)) then
+for i in 0 to regarrlen-2 loop
+inte1(i) := inte1(i+1);
+end loop;
+inte1(regarrlen-1) := unsigned(regin);
+for i in 0 to regarrlen-1 loop
+schnitt := schnitt+(inte1(i));
+end loop;
+schnitt := schnitt/regarrlen;
+end if;
+regout<=std_logic_vector(schnitt(31 downto 0));
+end process;
+
+end Behavioral;
+\end{verbatim}
+
+3.:\newline
+VHDl\_main:\newline
+\begin{verbatim}
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity main is
+    Port (uhr : in std_logic;
+          sw : in std_logic_vector(15 downto 0);
+          ld : out std_logic_vector(15 downto 0);
+          UART_TXD 	: out  STD_LOGIC;
+          BTN 			: in  STD_LOGIC_VECTOR (4 downto 0)
+          );
+end main;
+
+architecture Behavioral of main is
+
+component FD is
+    Port ( freqin : in STD_LOGIC;
+           teilfak: in std_logic_vector (15 downto 0);
+           freqout : out STD_LOGIC);
+end component;
+
+component PFD is
+    Port ( freqref,freqdiv : in STD_LOGIC;
+           up,down : out STD_LOGIC);
+end component;
+
+component NCO is
+    Port ( freqin : in STD_LOGIC;
+           kontrollzahler : in std_logic_vector(31 downto 0);
+           freqoutnco : out STD_LOGIC);
+end component;
+
+component updowncounter is
+    Port ( uhr : in STD_LOGIC;
+           schnelleuhr : in std_logic;
+           kontroll0 : in STD_LOGIC;
+           kontroll1 : in STD_LOGIC;
+           registerwert : out STD_LOGIC_VECTOR (31 downto 0));
+end component;
+
+component frequenzmessung is
+    Port ( uhr_ref,uhr_mess : in std_logic;
+           frequenz : out std_logic_vector(63 downto 0));
+end component;
+
+component UART_TX_CTRL is
+    Port ( SEND : in  STD_LOGIC;
+           DATA : in  STD_LOGIC_VECTOR (7 downto 0);
+           CLK : in  STD_LOGIC;
+           READY : out  STD_LOGIC;
+           UART_TX : out  STD_LOGIC);
+end component;
+
+signal freqaus,hoch,runter,freq11,freq22,freq33,freq44,freq55,freqnco,freqausgang,
+freqtest,kontrolle,schnelluhr : std_logic;
+signal teilfaktor1,teilfaktor2,kontroll,phasenwert : std_logic_vector (15 downto 0);
+signal ncoregister,ncoregistertest,filterregister : std_logic_vector(31 downto 0);
+
+type UART_STATE_TYPE is (RST_REG, LD_INIT_STR, SEND_CHAR, RDY_LOW, WAIT_RDY, WAIT_BTN, LD_BTN_STR);
+type CHAR_ARRAY is array (integer range<>) of std_logic_vector(7 downto 0);
+
+constant RESET_CNTR_MAX : std_logic_vector(17 downto 0) := "110000110101000000";
+-- 100,000,000 * 0.002 = 200,000 = clk cycles per 2 ms
+constant MAX_STR_LEN : integer := 27;
+constant WELCOME_STR_LEN : natural := 27;
+constant BTN_STR_LEN : natural := 24;
+
+signal freq : std_logic_vector (63 downto 0);
+alias freq0 is freq (7 downto 0);
+alias freq1 is freq (15 downto 8);
+alias freq2 is freq (23 downto 16);
+alias freq3 is freq (31 downto 24);
+alias freq4 is freq (39 downto 32);
+alias freq5 is freq (47 downto 40);
+alias freq6 is freq (55 downto 48);
+alias freq7 is freq (63 downto 56);
+signal zeilenende : std_logic_vector( 7 downto 0) :=X"0A";
+signal FREQ_STR : CHAR_ARRAY(0 to 8):=(freq7,freq6,freq5,freq4,freq3,freq2,freq1,freq0,zeilenende);
+constant FREQ_STR_LEN : natural := 9;
+
+signal teiler : std_logic_vector (26 downto 0):="101111101011110000100000000";
+
+constant WELCOME_STR : CHAR_ARRAY(0 to 26) := (X"0A",X"0D",X"42",X"41",X"53",X"59",X"53",
+X"33",X"20",X"47",X"50",X"49",X"4F",X"2F",X"55",X"41",X"52",X"54",X"20",X"44",X"45",X"4D",
+X"4F",X"21",X"0A",X"0A",X"0D");
+constant BTN_STR : CHAR_ARRAY(0 to 23) := (X"42",X"75",X"74",X"74",X"6F",X"6E",X"20",X"70",
+X"72",X"65",X"73",X"73",X"20",X"64",X"65",X"74",X"65",X"63",X"74",X"65",X"64",X"21",X"0A",X"0D");
+
+
+
+signal sendStr : CHAR_ARRAY(0 to (MAX_STR_LEN - 1));
+signal strEnd : natural;
+signal strIndex : natural;
+
+signal uartRdy : std_logic;
+signal uartSend : std_logic := '0';
+signal uartData : std_logic_vector (7 downto 0):= "00000000";
+signal uartTX : std_logic;
+
+signal uartState : UART_STATE_TYPE := RST_REG;
+signal reset_cntr : std_logic_vector (17 downto 0) := (others=>'0');
+
+signal btnDetect : std_logic;
+
+signal btnReg : std_logic_vector (3 downto 0) := "0000";
+
+signal CLK,hochtest,runtertest : std_logic;
+
+begin
+
+--Frequenzgenerierung durch PLL hier
+
+teilfaktor1<="0111111111111111";
+Vorteiler: FD port map (freqin=>uhr,teilfak=>teilfaktor1,freqout=>freq11);
+
+Detektor: PFD port map (freqref=>freq11,freqdiv=>freqausgang,up=>hoch,down=>runter);
+
+HochRunter: updowncounter port map(uhr=>uhr,schnelleuhr=>schnelluhr,kontroll0=>hoch,
+kontroll1=>runter,registerwert=>ncoregister);
+
+
+StandardNCO: NCO port map(freqin=>uhr,kontrollzahler=>ncoregister,freqoutnco=>freqnco);
+
+teilfaktor2<=sw;
+Ruckteiler: FD port map (freqin=>freqnco,teilfak=>teilfaktor2,freqout=>freqausgang);
+
+
+
+
+--Frequenzmessung beginnt hier
+
+CLK<=uhr;
+
+Inst_UART_TX_CTRL: UART_TX_CTRL port map(SEND=>uartSend,DATA=>uartData,
+CLK=>CLK,READY=>uartRdy,UART_TX=>uartTX);
+	
+Inst_Frequenzmessung: Frequenzmessung port map(uhr_ref=>CLK,uhr_mess=>freqnco,frequenz=>freq);
+
+process(CLK)
+begin
+if (rising_edge(CLK)) then
+if (teiler="000000000000000000000000000") then
+teiler<="101111101011110000100000000";
+btnDetect<='1';
+else
+teiler<=teiler-1;
+btnDetect<='0';
+end if;
+end if;
+end process;
+
+process(CLK)
+begin
+  if (rising_edge(CLK)) then
+    if ((reset_cntr = RESET_CNTR_MAX) or (uartState /= RST_REG)) then
+      reset_cntr <= (others=>'0');
+    else
+      reset_cntr <= reset_cntr + 1;
+    end if;
+  end if;
+end process;
+
+next_uartState_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+			case uartState is 
+			when RST_REG =>
+        if (reset_cntr = RESET_CNTR_MAX) then
+          uartState <= LD_INIT_STR;
+        end if;
+			when LD_INIT_STR =>
+				uartState <= SEND_CHAR;
+			when SEND_CHAR =>
+				uartState <= RDY_LOW;
+			when RDY_LOW =>
+				uartState <= WAIT_RDY;
+			when WAIT_RDY =>
+				if (uartRdy = '1') then
+					if (strEnd = strIndex) then
+						uartState <= WAIT_BTN;
+					else
+						uartState <= SEND_CHAR;
+					end if;
+				end if;
+			when WAIT_BTN =>
+				if (btnDetect = '1') then
+					uartState <= LD_BTN_STR;
+				end if;
+			when LD_BTN_STR =>
+				uartState <= SEND_CHAR;
+			when others=> --should never be reached
+				uartState <= RST_REG;
+			end case;
+	end if;
+end process;
+
+string_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR) then
+			sendStr <= WELCOME_STR;
+			strEnd <= WELCOME_STR_LEN;
+		elsif (uartState = LD_BTN_STR) then
+			sendStr(0 to 8) <= FREQ_STR;--sendStr(0 to 23) <= BTN_STR;
+			strEnd <= FREQ_STR_LEN;--strEnd <= BTN_STR_LEN;
+		end if;
+	end if;
+end process;
+
+char_count_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = LD_INIT_STR or uartState = LD_BTN_STR) then
+			strIndex <= 0;
+		elsif (uartState = SEND_CHAR) then
+			strIndex <= strIndex + 1;
+		end if;
+	end if;
+end process;
+
+char_load_process : process (CLK)
+begin
+	if (rising_edge(CLK)) then
+		if (uartState = SEND_CHAR) then
+			uartSend <= '1';
+			uartData <= sendStr(strIndex);
+		else
+			uartSend <= '0';
+		end if;
+	end if;
+end process;
+
+UART_TXD <= uartTX;
+
+end Behavioral;
+\end{verbatim}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Fazit}
+In dieser Arbeit konnten 9 Projekte erarbeitet werden, mit denen die Grundlagen von VHDL und FPGA-Design pr\"asentiert werden konnten. Es wurden Grundlagen zur Projektstrukturierung aufgezeigt und darauf aufbauend komplexe Schaltungen f\"ur spezifische Anwendungszwecke aufgebaut werden. Das letzte Projekt zeigte jedoch schon die Limitierung des Basys3-boards, da es selbst stark vereinfacht, kaum auf den Artix7-Chip passte. Noch komplexere Projekte sind daher nicht m\"oglich. 
+
+\renewcommand\refname{Literatur}
+\addcontentsline{toc}{section}{Literatur}
+\bibliography{literatur}
+
+\end{document}
