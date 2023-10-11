@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Thu Sep 24 02:39:29 2020
+# Process ID: 6196
+# Current directory: D:/Weitere_Daten/VHDL/VHDL_Tutorial-master/9_5_ADPLL_Frequenzzaehler_UART
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent7504 D:\Weitere_Daten\VHDL\VHDL_Tutorial-master\9_5_ADPLL_Frequenzzaehler_UART\9_5_ADPLL_Frequenzzaehler_UART.xpr
+# Log file: D:/Weitere_Daten/VHDL/VHDL_Tutorial-master/9_5_ADPLL_Frequenzzaehler_UART/vivado.log
+# Journal file: D:/Weitere_Daten/VHDL/VHDL_Tutorial-master/9_5_ADPLL_Frequenzzaehler_UART\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project -read_only D:/Weitere_Daten/VHDL/VHDL_Tutorial-master/9_5_ADPLL_Frequenzzaehler_UART/9_5_ADPLL_Frequenzzaehler_UART.xpr
+update_compile_order -fileset sources_1
